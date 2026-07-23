@@ -132,14 +132,13 @@
             </div>
             <div class="form-field" style="min-width:140px;flex:0 0 auto">
               <label>水印</label>
-              <select id="watermarkType" onchange="toggleWatermark()">
-                <option value="none" selected>无水印</option>
-                <option value="custom">有水印</option>
+              <select id="watermarkType" onchange="generateCode()">
+                <option value="none" selected>无水印 (false)</option>
+                <option value="custom">有水印 (true)</option>
               </select>
             </div>
-            <div class="form-field" id="watermarkTextField" style="display:none;min-width:140px;flex:0 0 auto">
-              <label>水印内容</label>
-              <input type="text" id="watermark" value="" placeholder="填写水印文字（不填则用 true）" style="width:120px">
+            <div class="form-field field-hidden" id="watermarkTextField" style="display:none">
+              <span style="font-size:12px;color:var(--muted)">水印参数已设为 true</span>
             </div>
             <div class="form-field" style="min-width:120px;flex:0 0 auto">
               <label>生成音频</label>
@@ -293,12 +292,6 @@ function getPollUrl(){
   return refUrl.replace(/www\.sophnet\.com/g,newDomain);
 }
 
-function toggleWatermark(){
-  var wt=document.getElementById('watermarkType').value;
-  document.getElementById('watermarkTextField').style.display=wt==='custom'?'':'none';
-  generateCode();
-}
-
 function generateCode(){
   const t=TEMPLATES[currentType];
   const url=getFinalUrl();
@@ -315,9 +308,7 @@ function generateCode(){
     const prompt=t.body.match(/"text":"([^"]+)"/);
     const promptText=prompt ? prompt[1] : '';
     var wmType=document.getElementById('watermarkType').value;
-    var wmVal=wmType==='custom'?document.getElementById('watermark').value.trim():'';
-    // watermark: true if custom selected, false otherwise. Only use string if text is filled.
-    var wmFinal=wmType==='custom'?(wmVal?wmVal:true):false;
+    var wmFinal=wmType==='custom'?true:false;
     if(currentType==='video-gen'){
       var vd={model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration)};
       if(wmFinal!==false) vd.watermark=wmFinal; else vd.watermark=false;
@@ -335,10 +326,7 @@ function generateCode(){
     try {
       var parsed=JSON.parse(body);
       var wmType2=document.getElementById('watermarkType').value;
-      if(wmType2==='custom'){
-        var wmVal2=document.getElementById('watermark').value.trim();
-        parsed.watermark=wmVal2?wmVal2:true;
-      }
+      if(wmType2==='custom'){ parsed.watermark=true; }
       if(webSearch) parsed.web_search=true;
       body=JSON.stringify(parsed);
     } catch(e) {}
@@ -456,7 +444,7 @@ function autoExtractDomain(){
   }
 }
 
-['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermark','watermarkType','genAudio','webSearch'].forEach(id=>{
+['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermarkType','genAudio','webSearch'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });

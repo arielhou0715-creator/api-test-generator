@@ -131,8 +131,15 @@
               </select>
             </div>
             <div class="form-field" style="min-width:140px;flex:0 0 auto">
+              <label>水印</label>
+              <select id="watermarkType" onchange="toggleWatermark()">
+                <option value="none" selected>无水印</option>
+                <option value="custom">有水印</option>
+              </select>
+            </div>
+            <div class="form-field" id="watermarkTextField" style="display:none;min-width:140px;flex:0 0 auto">
               <label>水印内容</label>
-              <input type="text" id="watermark" value="" placeholder="不填默认“水印”" style="width:120px">
+              <input type="text" id="watermark" value="水印" placeholder="填写水印文字" style="width:120px">
             </div>
             <div class="form-field" style="min-width:120px;flex:0 0 auto">
               <label>生成音频</label>
@@ -286,6 +293,12 @@ function getPollUrl(){
   return refUrl.replace(/www\.sophnet\.com/g,newDomain);
 }
 
+function toggleWatermark(){
+  var wt=document.getElementById('watermarkType').value;
+  document.getElementById('watermarkTextField').style.display=wt==='custom'?'':'none';
+  generateCode();
+}
+
 function generateCode(){
   const t=TEMPLATES[currentType];
   const url=getFinalUrl();
@@ -301,17 +314,17 @@ function generateCode(){
     const model='sophvideo-2.0';
     const prompt=t.body.match(/"text":"([^"]+)"/);
     const promptText=prompt ? prompt[1] : '';
+    var wmType=document.getElementById('watermarkType').value;
+    var wmVal=wmType==='custom'?document.getElementById('watermark').value.trim():'';
     if(currentType==='video-gen'){
       var vd={model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration)};
-      var wmInput=document.getElementById('watermark').value.trim();
-      if(wmInput) vd.watermark=wmInput; else vd.watermark=false;
+      if(wmVal) vd.watermark=wmVal; else vd.watermark=false;
       if(webSearch) vd.web_search=true;
       body=JSON.stringify(vd);
     } else if(currentType==='video-img'){
       const img=document.getElementById('imageUrl').value.trim()||'https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625';
       var vi={model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration)};
-      var wmInput2=document.getElementById('watermark').value.trim();
-      if(wmInput2) vi.watermark=wmInput2; else vi.watermark=false;
+      if(wmVal) vi.watermark=wmVal; else vi.watermark=false;
       if(webSearch) vi.web_search=true;
       body=JSON.stringify(vi);
     }
@@ -319,8 +332,11 @@ function generateCode(){
     // For non-video types, only modify body when user sets non-default values
     try {
       var parsed=JSON.parse(body);
-      var wmVal=document.getElementById('watermark').value.trim();
-      if(wmVal) parsed.watermark=wmVal;
+      var wmType2=document.getElementById('watermarkType').value;
+      if(wmType2==='custom'){
+        var wmVal2=document.getElementById('watermark').value.trim();
+        if(wmVal2) parsed.watermark=wmVal2;
+      }
       if(webSearch) parsed.web_search=true;
       body=JSON.stringify(parsed);
     } catch(e) {}
@@ -435,7 +451,7 @@ function autoExtractDomain(){
   }
 }
 
-['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermark','genAudio','webSearch'].forEach(id=>{
+['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermark','watermarkType','genAudio','webSearch'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });

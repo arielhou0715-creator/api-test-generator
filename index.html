@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>API 测试代码生成器</title>
 <style>
   :root{--bg:#f0f4ff;--panel:#fff;--sidebar:#e8ecf6;--sidebar-fg:#475569;--sidebar-active-bg:#6366f1;--sidebar-active-fg:#fff;--text:#1e2430;--muted:#64748b;--border:#e0e7ee;--code-bg:#f8fafc;--code-fg:#1e2430;--code-border:#e0e7ee;--accent:#6366f1;--accent-light:#eef2ff;--tag:#eef2ff;--tag-fg:#6366f1;--input-bg:#fff;--input-border:#cbd5e1;--green:#16a34a;--red:#ef4444;--amber:#f59e0b;--amber-bg:#fffbeb;--shadow-md:0 4px 12px rgba(99,102,241,.08)}
@@ -251,27 +254,35 @@ function generateCode(){
       document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/替换为实际task_id" -H "Authorization: Bearer '+apiKey+'"';
     }
   } else {
-    // Python
+    // Python (using urllib, no pip install needed)
     const code=[
-      'import requests, json','',
+      'import urllib.request, json','',
       'API_KEY = "'+apiKey+'"',
       'URL = "'+url+'"',
       "BODY = '" + body + "'",'',
+      'req = urllib.request.Request(',
+      '    URL,',
+      '    data=BODY.encode("utf-8"),',
+      '    headers={',
+      '        "Authorization": "Bearer " + API_KEY,',
+      '        "Content-Type": "application/json",',
+      '    },',
+      '    method="POST"',
+      ')',
       'try:',
-      '    resp = requests.post(',
-      '        URL,',
-      '        headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},',
-      '        data=BODY,',
-      '        timeout=120',
-      '    )',
-      '    print(f"HTTP {resp.status_code}")',
-      '    data = resp.json()',
-      '    if resp.status_code in (200, 201):',
-      '        print("✅ 成功")',
-      '        print(json.dumps(data, indent=2, ensure_ascii=False))',
-      '    else:',
-      '        print("❌ 失败")',
-      '        print(json.dumps(data, indent=2, ensure_ascii=False))',
+      '    with urllib.request.urlopen(req, timeout=120) as resp:',
+      '        status = resp.status',
+      '        data = json.loads(resp.read().decode("utf-8"))',
+      '        print(f"HTTP {status}")',
+      '        if status in (200, 201):',
+      '            print("✅ 成功")',
+      '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+      '        else:',
+      '            print("❌ 失败")',
+      '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+      'except urllib.error.HTTPError as e:',
+      '    print(f"❌ HTTP {e.code}")',
+      '    print(e.read().decode("utf-8"))',
       'except Exception as e:',
       '    print(f"❌ 异常: {e}")',
     ].join('\n');
@@ -280,23 +291,28 @@ function generateCode(){
     if(t.isAsync){
       const pollUrl=getPollUrl();
       document.getElementById('pollCode').textContent=[
-        'import time, requests, json','',
+        'import urllib.request, json, time','',
         'API_KEY = "'+apiKey+'"',
         'URL = "'+pollUrl+'/替换为实际task_id"','',
         'while True:',
         '    try:',
-        '        resp = requests.get(URL, headers={"Authorization": f"Bearer {API_KEY}"}, timeout=30)',
-        '        data = resp.json()',
-        '        status = data.get("status","unknown")',
-        '        print(f"状态: {status}")',
-        '        if status in ("succeeded","SUCCESS","completed"):',
-        '            print("✅ 完成")',
-        '            print(json.dumps(data, indent=2, ensure_ascii=False))',
-        '            break',
-        '        elif status in ("failed","ERROR"):',
-        '            print("❌ 失败")',
-        '            break',
-        '        time.sleep(5)',
+        '        req = urllib.request.Request(',
+        '            URL,',
+        '            headers={"Authorization": "Bearer " + API_KEY},',
+        '            method="GET"',
+        '        )',
+        '        with urllib.request.urlopen(req, timeout=30) as resp:',
+        '            data = json.loads(resp.read().decode("utf-8"))',
+        '            status = data.get("status", "unknown")',
+        '            print(f"状态: {status}")',
+        '            if status in ("succeeded", "SUCCESS", "completed"):',
+        '                print("✅ 完成")',
+        '                print(json.dumps(data, indent=2, ensure_ascii=False))',
+        '                break',
+        '            elif status in ("failed", "ERROR"):',
+        '                print("❌ 失败")',
+        '                break',
+        '            time.sleep(5)',
         '    except Exception as e:',
         '        print(f"异常: {e}")',
         '        time.sleep(5)',

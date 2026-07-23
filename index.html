@@ -401,10 +401,10 @@ function genCurl(type, url, key, model, prompt, size, img, dur, mode) {
   const isPost = (type === 'video-gen' || type === 'image-edit' || type === 'image2image' || type === 'gpt-image');
 
   if (mode === 'single') {
-    // 单行: curl.exe --%  CMD/PowerShell 通用
+    // 单行: curl.exe  CMD/PowerShell 通用
     const winBody = compactJson.replace(/"/g, '\\"');
     const postFlag = isPost ? '-X POST ' : '';
-    return 'curl.exe --% "' + url + '" -H "Content-Type: application/json" -H "Authorization: Bearer ' + key + '" -d "' + winBody + '"';
+    return 'curl.exe ' + postFlag + '"' + url + '" -H "Content-Type: application/json" -H "Authorization: Bearer ' + key + '" -d "' + winBody + '"';
   }
 
   // 多行
@@ -420,7 +420,7 @@ function genCurl(type, url, key, model, prompt, size, img, dur, mode) {
 
 function genCurlPoll(url, key, mode) {
   if (mode === 'single') {
-    return 'curl.exe --% -X GET "' + url + '/替换为实际task_id" -H "Authorization: Bearer ' + key + '"';
+    return 'curl.exe -X GET "' + url + '/替换为实际task_id" -H "Authorization: Bearer ' + key + '"';
   }
   return [
     '# 将 TASK_ID 替换为实际任务 ID',

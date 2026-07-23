@@ -526,23 +526,12 @@ function genCurl(type, url, key, model, prompt, size, img, dur, style, mode) {
     : `-d '${bodyJson.replace(/'/g, "'\\''")}'`;
 
   if (mode === 'single') {
-    // Single line: Windows cmd compatible
-    // Use ^ for line continuation in Windows cmd, or just keep it truly single line
-    const label = type === 'video-gen' ? '# ① 提交视频生成任务（直接粘贴到 cmd 运行）\n' :
-                  type === 'text2image' ? '# 文生图请求（直接粘贴到 cmd 运行）\n' :
-                  type === 'image2image' ? '# 图生图请求（直接粘贴到 cmd 运行）\n' :
-                  type === 'image-edit' ? '# 图像编辑请求（直接粘贴到 cmd 运行）\n' :
-                  '# 文本调用请求（直接粘贴到 cmd 运行）\n';
-
-    // For Windows cmd: use double quotes, escape inner double quotes, wrap JSON in double quotes
-    // Windows cmd doesn't support single quotes, so we need: -d "{\"key\":\"value\"}"
-    const winBody = bodyJson.replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\"');
-    const urlStr = type === 'video-gen' ? `"${fullUrl}"` : `"${fullUrl}"`;
-
-    if (type === 'video-gen') {
-      return `${label}curl -X POST ${urlStr} -H "Content-Type: application/json" -H "Authorization: Bearer ${key}" -d "${winBody}"`;
-    }
-    return `${label}curl ${urlStr} -H "Content-Type: application/json" -H "Authorization: Bearer ${key}" -d "${winBody}"`;
+    // Windows CMD single-line: no comments, no bash logic, pure one-line curl
+    // JSON compact, all inner double quotes escaped as \" for CMD
+    const compactJson = JSON.stringify(body);
+    const winBody = compactJson.replace(/"/g, '\\"');
+    const postFlag = type === 'video-gen' ? '-X POST ' : '';
+    return `curl ${postFlag}"${fullUrl}" -H "Content-Type: application/json" -H "Authorization: Bearer ${key}" -d "${winBody}"`;
   }
 
   // Multi-line mode (with result checking)
@@ -567,7 +556,7 @@ function genCurl(type, url, key, model, prompt, size, img, dur, style, mode) {
 
 function genCurlPoll(url, key, mode) {
   if (mode === 'single') {
-    return `# ② 轮询查询视频生成结果（将 TASK_ID 替换为实际任务 ID，直接粘贴到 cmd 运行）\nset TASK_ID=替换为实际 task_id\ncurl -X GET "${url}/%TASK_ID%" -H "Authorization: Bearer ${key}"`;
+    return `curl -X GET "${url}/替换为实际task_id" -H "Authorization: Bearer ${key}"`;
   }
   return `# ② 轮询查询视频生成结果（将 TASK_ID 替换为实际任务 ID）\nTASK_ID="替换为实际 task_id"\ncurl -s -w "\\n%{http_code}" -X GET "${url}/${TASK_ID}" \\\n  -H "Authorization: Bearer ${key}" | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    status=$(echo "$resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))" 2>/dev/null)\n    if [ "$status" = "succeeded" ] || [ "$status" = "SUCCESS" ] || [ "$status" = "completed" ]; then\n      echo "✅ 视频生成完成！"\n      echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n    elif [ "$status" = "failed" ] || [ "$status" = "ERROR" ]; then\n      echo "❌ 视频生成失败"\n      echo "$resp"\n    else\n      echo "⏳ 任务进行中 (status: $status)，请稍后重试"\n      echo "$resp"\n    fi\n  else\n    echo "❌ 查询失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
 }

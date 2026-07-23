@@ -252,12 +252,11 @@ function generateCode(){
     }
   } else {
     // Python
-    const winBody=body.replace(/"/g,'\\"');
     const code=[
       'import requests, json','',
       'API_KEY = "'+apiKey+'"',
       'URL = "'+url+'"',
-      'BODY = r"' + body + '"','',
+      "BODY = '" + body + "'",'',
       'try:',
       '    resp = requests.post(',
       '        URL,',

@@ -130,7 +130,14 @@
         <pre id="codeOutput"></pre>
       </div>
     </div>
-    <div id="asyncTip" class="tip" style="display:none">⚠️ 视频生成为异步任务：① 提交任务获取 task_id → ② 轮询查询结果。</div>
+    <div id="asyncTip" class="tip" style="display:none">
+      ⚠️ 视频生成为异步任务：① 提交任务获取 task_id → ② 轮询查询结果。
+      <div style="margin-top:10px;">
+        <label style="font-size:13px;font-weight:600;color:var(--muted);">填写第①步返回的 task_id：</label>
+        <input type="text" id="taskIdInput" placeholder="粘贴第一步返回的 task_id" style="width:100%;padding:8px 12px;font-size:14px;border:1.5px solid var(--input-border);border-radius:8px;margin-top:4px;background:var(--input-bg);color:var(--text);" oninput="generateCode()">
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">填入后第二步轮询代码会自动替换为真实 ID</div>
+      </div>
+    </div>
     <div class="code-section" id="pollSection" style="display:none">
       <div class="code-wrap">
         <div class="code-header">
@@ -249,7 +256,8 @@ function generateCode(){
 
     if(t.isAsync){
       const pollUrl=getPollUrl();
-      document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/替换为实际task_id" -H "Authorization: Bearer '+apiKey+'"';
+      const taskId=document.getElementById('taskIdInput').value.trim()||'替换为实际task_id';
+      document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/'+taskId+'" -H "Authorization: Bearer '+apiKey+'"';
     }
   } else {
     // Python (using urllib, no pip install needed)
@@ -288,10 +296,11 @@ function generateCode(){
 
     if(t.isAsync){
       const pollUrl=getPollUrl();
+      const taskId=document.getElementById('taskIdInput').value.trim()||'替换为实际task_id';
       document.getElementById('pollCode').textContent=[
         'import urllib.request, json, time','',
         'API_KEY = "'+apiKey+'"',
-        'URL = "'+pollUrl+'/替换为实际task_id"','',
+        'URL = "'+pollUrl+'/'+taskId+'"','',
         'while True:',
         '    try:',
         '        req = urllib.request.Request(',

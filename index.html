@@ -6,196 +6,102 @@
 <title>API 测试代码生成器</title>
 <style>
   :root {
-    --bg: #f0f4ff;
-    --panel: #ffffff;
-    --sidebar: #e8ecf6;
-    --sidebar-fg: #475569;
-    --sidebar-active-bg: #6366f1;
-    --sidebar-active-fg: #fff;
-    --text: #1e2430;
-    --muted: #64748b;
-    --border: #e0e7ee;
-    --code-bg: #f8fafc;
-    --code-fg: #1e2430;
-    --code-border: #e0e7ee;
-    --accent: #6366f1;
-    --accent-light: #eef2ff;
-    --tag: #eef2ff;
-    --tag-fg: #6366f1;
-    --input-bg: #fff;
-    --input-border: #cbd5e1;
-    --green: #16a34a;
-    --green-bg: #f0fdf4;
-    --red: #ef4444;
-    --red-bg: #fef2f2;
-    --amber: #f59e0b;
-    --amber-bg: #fffbeb;
-    --shadow: 0 1px 3px rgba(99,102,241,.08);
-    --shadow-md: 0 4px 12px rgba(99,102,241,.08);
+    --bg: #f0f4ff; --panel: #ffffff; --sidebar: #e8ecf6; --sidebar-fg: #475569;
+    --sidebar-active-bg: #6366f1; --sidebar-active-fg: #fff;
+    --text: #1e2430; --muted: #64748b; --border: #e0e7ee;
+    --code-bg: #f8fafc; --code-fg: #1e2430; --code-border: #e0e7ee;
+    --accent: #6366f1; --accent-light: #eef2ff; --tag: #eef2ff; --tag-fg: #6366f1;
+    --input-bg: #fff; --input-border: #cbd5e1;
+    --green: #16a34a; --red: #ef4444; --amber: #f59e0b; --amber-bg: #fffbeb;
+    --shadow: 0 1px 3px rgba(99,102,241,.08); --shadow-md: 0 4px 12px rgba(99,102,241,.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg); color: var(--text); line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   .wrap { display: flex; min-height: 100vh; }
-  nav.sidebar {
-    width: 260px; flex-shrink: 0; background: var(--sidebar); color: var(--sidebar-fg);
-    position: sticky; top: 0; align-self: flex-start; height: 100vh; overflow-y: auto; padding: 22px 0;
-    border-right: 1px solid var(--border);
-  }
-  .brand {
-    padding: 0 22px 18px; font-size: 15px; font-weight: 700; color: var(--text);
-    letter-spacing: .3px; display: flex; align-items: center; gap: 8px;
-  }
+  nav.sidebar { width: 260px; flex-shrink: 0; background: var(--sidebar); color: var(--sidebar-fg); position: sticky; top: 0; align-self: flex-start; height: 100vh; overflow-y: auto; padding: 22px 0; border-right: 1px solid var(--border); }
+  .brand { padding: 0 22px 18px; font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: .3px; display: flex; align-items: center; gap: 8px; }
   .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
-  nav .nav-group-title {
-    padding: 14px 22px 6px; font-size: 11px; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--muted); font-weight: 600;
-  }
-  nav a {
-    display: flex; align-items: center; gap: 10px; padding: 9px 22px;
-    color: var(--sidebar-fg); text-decoration: none; font-size: 14px;
-    border-left: 3px solid transparent; transition: all .15s; cursor: pointer;
-    border-radius: 0 8px 8px 0; margin-right: 8px;
-  }
+  nav .nav-group-title { padding: 14px 22px 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; }
+  nav a { display: flex; align-items: center; gap: 10px; padding: 9px 22px; color: var(--sidebar-fg); text-decoration: none; font-size: 14px; border-left: 3px solid transparent; transition: all .15s; cursor: pointer; border-radius: 0 8px 8px 0; margin-right: 8px; }
   nav a:hover { background: rgba(99,102,241,.08); color: var(--text); }
   nav a.active { background: var(--sidebar-active-bg); color: var(--sidebar-active-fg); border-left-color: var(--accent); }
-  nav a .num {
-    width: 22px; height: 22px; flex-shrink: 0; display: grid; place-items: center;
-    background: rgba(99,102,241,.12); border-radius: 6px; font-size: 12px; font-weight: 700;
-  }
+  nav a .num { width: 22px; height: 22px; flex-shrink: 0; display: grid; place-items: center; background: rgba(99,102,241,.12); border-radius: 6px; font-size: 12px; font-weight: 700; }
   nav a.active .num { background: rgba(255,255,255,.25); color: #fff; }
   nav a .sub { font-size: 11px; color: var(--muted); display: block; }
   nav a.active .sub { color: rgba(255,255,255,.8); }
   nav a .label-wrap { display: flex; flex-direction: column; line-height: 1.25; }
-
   main { flex: 1; min-width: 0; padding: 36px 44px 80px; }
-  header.top { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  header.top { margin-bottom: 24px; }
   header.top h1 { font-size: 24px; margin: 0 0 4px; }
   header.top p { margin: 0; color: var(--muted); font-size: 14px; }
-
-  .form-card {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 14px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-md);
-  }
+  .form-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-md); }
   .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
   .form-field { flex: 1; min-width: 220px; }
-  .form-field label {
-    display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px;
-  }
+  .form-field label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
   .form-field label .req { color: var(--red); }
-  .form-field input, .form-field select, .form-field textarea {
-    width: 100%; padding: 9px 12px; font-size: 14px; border: 1.5px solid var(--input-border);
-    border-radius: 8px; background: var(--input-bg); color: var(--text);
-    font-family: inherit; outline: none; transition: border-color .15s;
-  }
+  .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 9px 12px; font-size: 14px; border: 1.5px solid var(--input-border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-family: inherit; outline: none; transition: border-color .15s; }
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--accent); }
   .form-field textarea { resize: vertical; min-height: 60px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; }
   .form-field .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .field-hidden { display: none; }
-
   .lang-tabs { display: flex; gap: 0; margin-bottom: 0; }
-  .lang-tab {
-    padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
-    background: var(--panel); border: 1px solid var(--border); border-bottom: none;
-    border-radius: 8px 8px 0 0; color: var(--muted); transition: all .15s;
-  }
+  .lang-tab { padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--panel); border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--muted); transition: all .15s; }
   .lang-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
   .code-section { margin-top: 24px; }
   .code-wrap { position: relative; }
-  .code-header {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--code-bg); padding: 10px 16px; border-radius: 10px 10px 0 0;
-    border: 1px solid var(--code-border); border-bottom: none;
-  }
+  .code-header { display: flex; justify-content: space-between; align-items: center; background: var(--code-bg); padding: 10px 16px; border-radius: 10px 10px 0 0; border: 1px solid var(--code-border); border-bottom: none; }
   .code-header .title { font-size: 13px; color: var(--muted); font-weight: 600; }
-  .copy-btn {
-    background: var(--accent-light); color: var(--accent); border: 1px solid var(--border);
-    border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
-  }
+  .copy-btn { background: var(--accent-light); color: var(--accent); border: 1px solid var(--border); border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: all .15s; }
   .copy-btn:hover { background: var(--accent); color: #fff; }
   .copy-btn.done { background: var(--green); border-color: var(--green); color: #fff; }
-  pre {
-    background: var(--code-bg); color: var(--code-fg); padding: 16px 18px;
-    border-radius: 0 0 10px 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 0;
-    font-family: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
-    max-height: 560px; overflow-y: auto; border: 1px solid var(--code-border);
-    white-space: pre-wrap; word-break: break-all;
-  }
-  .tip {
-    border-left: 3px solid var(--amber); background: var(--amber-bg);
-    padding: 10px 14px; border-radius: 6px; font-size: 13.5px; margin: 12px 0; color: var(--text);
-  }
-  .section-title {
-    font-size: 18px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-  }
+  pre { background: var(--code-bg); color: var(--code-fg); padding: 16px 18px; border-radius: 0 0 10px 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 0; font-family: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace; max-height: 560px; overflow-y: auto; border: 1px solid var(--code-border); white-space: pre-wrap; word-break: break-all; }
+  .tip { border-left: 3px solid var(--amber); background: var(--amber-bg); padding: 10px 14px; border-radius: 6px; font-size: 13.5px; margin: 12px 0; color: var(--text); }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
   .section-title .icon { font-size: 20px; }
   .section-desc { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
-  .badge {
-    display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 9px;
-    border-radius: 20px; background: var(--tag); color: var(--tag-fg);
-  }
+  .badge { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 20px; background: var(--tag); color: var(--tag-fg); }
   .badge.async { background: var(--amber-bg); color: var(--amber); }
-
   .prompt-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-  .prompt-chip {
-    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px;
-    cursor: pointer; background: var(--accent-light); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); transition: all .15s;
-  }
+  .prompt-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; background: var(--accent-light); border: 1px solid var(--border); border-radius: 8px; color: var(--text); transition: all .15s; }
   .prompt-chip:hover { border-color: var(--accent); }
   .prompt-chip.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
   .divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-  /* curl mode toggle */
-  .curl-mode-toggle {
-    display: flex; gap: 4px; background: var(--accent-light); border-radius: 8px; padding: 3px;
-  }
-  .curl-mode-btn {
-    padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
-    border: none; background: transparent; color: var(--muted); border-radius: 6px; transition: all .15s;
-  }
+  .curl-mode-toggle { display: flex; gap: 4px; background: var(--accent-light); border-radius: 8px; padding: 3px; }
+  .curl-mode-btn { padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); border-radius: 6px; transition: all .15s; }
   .curl-mode-btn.active { background: var(--accent); color: #fff; }
-
-  @media (max-width: 820px) {
-    nav.sidebar { display: none; }
-    main { padding: 24px 16px 60px; }
-  }
+  .url-preview { font-size: 12px; color: var(--accent); background: var(--accent-light); padding: 6px 10px; border-radius: 6px; margin-top: 6px; word-break: break-all; font-family: "SF Mono", Consolas, monospace; }
+  @media (max-width: 820px) { nav.sidebar { display: none; } main { padding: 24px 16px 60px; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-
   <nav class="sidebar">
     <div class="brand"><span class="dot"></span>API 代码生成器</div>
     <div class="nav-group-title">测试目的</div>
-    <a data-type="text" class="active"><span class="num">1</span><span class="label-wrap">文本生成测试<span class="sub">Chat / Completion</span></span></a>
-    <a data-type="text2image"><span class="num">2</span><span class="label-wrap">图片生成测试<span class="sub">Text → Image</span></span></a>
-    <a data-type="image2image"><span class="num">3</span><span class="label-wrap">图生图测试<span class="sub">Image → Image</span></span></a>
-    <a data-type="image-edit"><span class="num">4</span><span class="label-wrap">图像编辑测试<span class="sub">Image Edit</span></span></a>
-    <a data-type="video-gen"><span class="num">5</span><span class="label-wrap">视频生成测试<span class="sub">Video · 异步</span></span></a>
+    <a data-type="text" class="active"><span class="num">1</span><span class="label-wrap">文本调用<span class="sub">Chat / Completion</span></span></a>
+    <a data-type="text2image"><span class="num">2</span><span class="label-wrap">文生图<span class="sub">Doubao-Seedream</span></span></a>
+    <a data-type="image2image"><span class="num">3</span><span class="label-wrap">图生图<span class="sub">Gemini-Image</span></span></a>
+    <a data-type="image-edit"><span class="num">4</span><span class="label-wrap">图像编辑<span class="sub">Wan2.7-Image</span></span></a>
+    <a data-type="gpt-image"><span class="num">5</span><span class="label-wrap">gpt-image<span class="sub">生成 / 编辑</span></span></a>
+    <a data-type="video-gen"><span class="num">6</span><span class="label-wrap">视频生成<span class="sub">Seedance · 异步</span></span></a>
   </nav>
 
   <main>
     <header class="top">
-      <div>
-        <h1>🧪 API 测试代码生成器</h1>
-        <p>选择测试目的 → 填写接口信息 → 生成含结果检测的可直接运行代码</p>
-      </div>
+      <h1>🧪 API 测试代码生成器</h1>
+      <p>选择测试目的 → 填写域名和接口信息 → 生成可直接运行的测试代码</p>
     </header>
 
     <div class="form-card">
-      <div class="section-title"><span class="icon" id="typeIcon">📝</span> <span id="typeTitle">文本生成测试</span> <span class="badge" id="typeBadge">Chat / Completion</span></div>
+      <div class="section-title"><span class="icon" id="typeIcon">📝</span> <span id="typeTitle">文本调用</span> <span class="badge" id="typeBadge">Chat / Completion</span></div>
       <div class="section-desc" id="typeDesc">调用大模型进行文本对话或补全，测试模型是否正常响应。</div>
 
       <div class="form-row">
         <div class="form-field">
-          <label>Base URL <span class="req">*</span></label>
-          <input type="text" id="baseUrl" value="https://www.sophnet.com/api/open-apis/projects/easyllms" placeholder="https://example.com/api/v1">
-          <div class="hint">API 基础地址</div>
+          <label>Base URL（仅域名）<span class="req">*</span></label>
+          <input type="text" id="baseUrl" value="https://model.sidus-ai.com" placeholder="https://model.sidus-ai.com">
+          <div class="hint">只需填域名，接口路径会根据测试类型自动拼接</div>
+          <div class="url-preview" id="urlPreview"></div>
         </div>
         <div class="form-field">
           <label>API Key <span class="req">*</span></label>
@@ -259,15 +165,7 @@
             <option value="nodejs">Node.js (fetch)</option>
           </select>
         </div>
-        <div class="form-field" style="flex: 0 0 auto; min-width: 160px;">
-          <label>API 风格</label>
-          <select id="apiStyle" onchange="generateCode()">
-            <option value="openai">OpenAI 兼容格式</option>
-            <option value="gemini">Gemini 格式</option>
-            <option value="custom">自定义 JSON</option>
-          </select>
-        </div>
-        <div class="form-field field-hidden" id="curlModeField" style="flex: 0 0 auto; min-width: 220px;">
+        <div class="form-field field-hidden" id="curlModeField" style="flex: 0 0 auto; min-width: 320px;">
           <label>curl 格式</label>
           <div class="curl-mode-toggle">
             <button class="curl-mode-btn active" id="curlModeMulti" onclick="switchCurlMode('multi')">多行（易读）</button>
@@ -285,7 +183,7 @@
       </div>
       <div class="code-wrap">
         <div class="code-header">
-          <span class="title" id="codeTitle">curl 命令（含结果检测）</span>
+          <span class="title" id="codeTitle">curl 单行命令</span>
           <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
         </div>
         <pre id="codeOutput"></pre>
@@ -293,104 +191,98 @@
     </div>
 
     <div id="asyncTip" class="tip field-hidden">
-      ⚠️ 视频生成为<strong>异步任务</strong>：① 提交任务获取 task_id → ② 轮询查询结果直到完成。下方已生成两段代码，均含结果检测。
+      ⚠️ 视频生成为<strong>异步任务</strong>：① 提交任务获取 task_id → ② 轮询查询结果直到完成。下方已生成两段代码。
     </div>
 
     <div class="code-section field-hidden" id="pollSection">
       <div class="code-wrap">
         <div class="code-header">
-          <span class="title">② 轮询查询结果（含状态检测）</span>
+          <span class="title">② 轮询查询结果</span>
           <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
         </div>
         <pre id="pollCode"></pre>
       </div>
     </div>
-
   </main>
 </div>
 
 <script>
+// 每种类型的接口路径与参考文档保持一致
 const TYPE_CONFIG = {
   text: {
-    icon: '📝', title: '文本生成测试', badge: 'Chat / Completion',
+    icon: '📝', title: '文本调用', badge: 'Chat / Completion',
     desc: '调用大模型进行文本对话或补全，测试模型是否正常响应。',
     showFields: { size: false, image: false, duration: false },
-    prompts: [
-      '你好，请简单介绍一下你自己。',
-      '写一首关于春天的七言绝句。',
-      '解释什么是机器学习，用通俗的语言。',
-      '用 Python 写一个快速排序算法。',
-      '请把以下句子翻译成英文：今天天气真好。',
-    ],
+    endpoint: '/api/open-apis/projects/v1/chat/completions',
+    prompts: ['你好，请简单介绍一下你自己。','写一首关于春天的七言绝句。','解释什么是机器学习，用通俗的语言。','用 Python 写一个快速排序算法。','请把以下句子翻译成英文：今天天气真好。'],
     defaultPrompt: '你好，请简单介绍一下你自己。',
     defaultModel: 'DeepSeek-V3',
-    defaultEndpoint: '/chat/completions',
   },
-  'text2image': {
-    icon: '🎨', title: '图片生成测试', badge: 'Text → Image',
-    desc: '根据文字描述生成图片，测试图像生成模型是否可用。',
+  text2image: {
+    icon: '🎨', title: '文生图', badge: 'Doubao-Seedream',
+    desc: '火山透传接口，根据文字描述生成图片。',
     showFields: { size: true, image: false, duration: false },
-    prompts: [
-      '一只可爱的橘猫在午后阳光下打盹，水彩画风格。',
-      '充满活力的特写编辑肖像，模特眼神犀利，头戴雕塑感帽子，Vogue杂志封面美学。',
-      '中国水墨画风格的山水风景，远山含黛，近水含烟。',
-      '赛博朋克风格的城市夜景，霓虹灯闪烁，高楼林立。',
-      '一朵盛开的牡丹花，工笔画风格，色彩艳丽，细节丰富。',
-    ],
+    endpoint: '/api/open-apis/projects/easyllms/imagegenerator',
+    prompts: ['一只可爱的橘猫在午后阳光下打盹，水彩画风格。','充满活力的特写编辑肖像，模特眼神犀利，头戴雕塑感帽子，Vogue杂志封面美学。','中国水墨画风格的山水风景，远山含黛，近水含烟。','赛博朋克风格的城市夜景，霓虹灯闪烁，高楼林立。','一朵盛开的牡丹花，工笔画风格，色彩艳丽，细节丰富。'],
     defaultPrompt: '一只可爱的橘猫在午后阳光下打盹，水彩画风格。',
     defaultModel: 'doubao-seedream-5-0-260128',
-    defaultEndpoint: '/imagegenerator',
   },
-  'image2image': {
-    icon: '🖼️', title: '图生图测试', badge: 'Image → Image',
-    desc: '输入一张图片 + 文字指令，生成新图片。测试模型对参考图的理解和变换能力。',
+  image2image: {
+    icon: '🖼️', title: '图生图', badge: 'Gemini-Image',
+    desc: 'Gemini AI Studio 路线，输入图片+指令生成新图。',
     showFields: { size: true, image: true, duration: false },
-    prompts: [
-      '给图中人物头上戴一朵小红花。',
-      '将图片背景改为星空，保持主体不变。',
-      '保持姿势不变，将服装改为古风汉服。',
-      '将白天场景转换为夜晚，添加灯光效果。',
-      '将图片风格转换为油画质感。',
-    ],
+    endpoint: '/api/open-apis/projects/easyllms/imagegenerator/google/models/{model}:generateContent',
+    prompts: ['给图中人物头上戴一朵小红花。','将图片背景改为星空，保持主体不变。','保持姿势不变，将服装改为古风汉服。','将白天场景转换为夜晚，添加灯光效果。','将图片风格转换为油画质感。'],
     defaultPrompt: '给图中人物头上戴一朵小红花。',
-    defaultModel: 'gemini-2.5-flash-image',
-    defaultEndpoint: '/imagegenerator',
+    defaultModel: 'Gemini-2.5-Flash-Image',
   },
   'image-edit': {
-    icon: '✏️', title: '图像编辑测试', badge: 'Image Edit',
-    desc: '对输入图片进行局部编辑修改，测试模型的图像理解与精准编辑能力。',
+    icon: '✏️', title: '图像编辑', badge: 'Wan2.7-Image',
+    desc: '阿里通义万相图像编辑接口，对输入图片进行局部编辑。',
     showFields: { size: true, image: true, duration: false },
-    prompts: [
-      '在画面右下角题写一首七言绝句，浅灰墨色手写体。',
-      '去除图片中的水印和文字。',
-      '将图片色调调整为暖色调，增加复古感。',
-      '将图片中的人物头发颜色改为金色。',
-      '在图片天空区域添加一道彩虹。',
-    ],
+    endpoint: '/api/open-apis/projects/easyllms/image-edit',
+    prompts: ['在画面右下角题写一首七言绝句，浅灰墨色手写体。','去除图片中的水印和文字。','将图片色调调整为暖色调，增加复古感。','将图片中的人物头发颜色改为金色。','在图片天空区域添加一道彩虹。'],
     defaultPrompt: '去除图片中的水印和文字。',
     defaultModel: 'Wan2.7-Image',
-    defaultEndpoint: '/image-edit',
+  },
+  'gpt-image': {
+    icon: '🖥️', title: 'gpt-image', badge: '生成 / 编辑',
+    desc: 'OpenAI 风格图像接口，支持文生图（generations）和图片编辑（edits）。',
+    showFields: { size: true, image: false, duration: false },
+    endpoint: '/api/open-apis/projects/v1/images/generations',
+    prompts: ['A photograph of a red fox in an autumn forest','一座未来主义城市，飞行器穿梭于摩天大楼之间','水彩风格的小屋在花园中，阳光温暖','一只机械蝴蝶停在发光的花朵上，微距摄影','极简主义风格的猫咪插画，黑白线条'],
+    defaultPrompt: 'A photograph of a red fox in an autumn forest',
+    defaultModel: 'gpt-image-2',
   },
   'video-gen': {
-    icon: '🎬', title: '视频生成测试', badge: 'Video · 异步', badgeAsync: true,
-    desc: '根据文字描述或参考图生成视频。异步任务：提交后轮询获取结果。',
+    icon: '🎬', title: '视频生成', badge: 'Seedance · 异步', badgeAsync: true,
+    desc: '豆包 Seedance 视频生成，支持文生视频(T2V)与图生视频(I2V)。异步任务：提交后轮询。',
     showFields: { size: false, image: false, duration: true },
-    prompts: [
-      '一只金毛犬在夕阳下的麦田里奔跑，跟拍镜头，电影质感。',
-      '城市夜景延时摄影，车流如织，从黄昏到深夜。',
-      '海浪拍打沙滩，慢动作特写，阳光折射在水面上。',
-      '一只蝴蝶从花丛中飞起，缓缓飞向蓝天，微距镜头。',
-      '雪山之巅云海翻涌，日出时分金光洒满雪峰。',
-    ],
+    endpoint: '/api/open-apis/projects/easyllms/videogenerator/volces/tasks',
+    pollEndpoint: '/api/open-apis/projects/easyllms/videogenerator/volces/tasks',
+    prompts: ['一只金毛犬在夕阳下的麦田里奔跑，跟拍镜头，电影质感。','城市夜景延时摄影，车流如织，从黄昏到深夜。','海浪拍打沙滩，慢动作特写，阳光折射在水面上。','一只蝴蝶从花丛中飞起，缓缓飞向蓝天，微距镜头。','雪山之巅云海翻涌，日出时分金光洒满雪峰。'],
     defaultPrompt: '一只金毛犬在夕阳下的麦田里奔跑，跟拍镜头，电影质感。',
     defaultModel: 'sophvideo-2.0',
-    defaultEndpoint: '/videogenerator/volces/tasks',
   },
 };
 
 let currentType = 'text';
 let currentLang = 'curl';
-let curlMode = 'multi'; // 'multi' or 'single'
+let curlMode = 'single';
+
+function getFullUrl() {
+  const cfg = TYPE_CONFIG[currentType];
+  const base = document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+  let ep = cfg.endpoint.replace('{model}', document.getElementById('model').value.trim());
+  return base + ep;
+}
+
+function getPollUrl() {
+  const cfg = TYPE_CONFIG[currentType];
+  const base = document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+  let ep = (cfg.pollEndpoint || cfg.endpoint).replace('{model}', document.getElementById('model').value.trim());
+  return base + ep;
+}
 
 function switchType(type) {
   currentType = type;
@@ -405,7 +297,6 @@ function switchType(type) {
   document.getElementById('imageField').classList.toggle('field-hidden', !cfg.showFields.image);
   document.getElementById('durationField').classList.toggle('field-hidden', !cfg.showFields.duration);
   document.getElementById('model').value = cfg.defaultModel;
-
   const presets = document.getElementById('promptPresets');
   presets.innerHTML = '';
   cfg.prompts.forEach((p, i) => {
@@ -413,12 +304,7 @@ function switchType(type) {
     chip.className = 'prompt-chip' + (i === 0 ? ' selected' : '');
     chip.textContent = p.length > 32 ? p.slice(0, 32) + '…' : p;
     chip.title = p;
-    chip.onclick = () => {
-      presets.querySelectorAll('.prompt-chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-      document.getElementById('prompt').value = p;
-      generateCode();
-    };
+    chip.onclick = () => { presets.querySelectorAll('.prompt-chip').forEach(c => c.classList.remove('selected')); chip.classList.add('selected'); document.getElementById('prompt').value = p; generateCode(); };
     presets.appendChild(chip);
   });
   document.getElementById('prompt').value = cfg.defaultPrompt;
@@ -433,12 +319,6 @@ function switchLang(lang) {
   document.getElementById('tab-' + lang).classList.add('active');
   document.getElementById('langSelect').value = lang;
   document.getElementById('curlModeField').classList.toggle('field-hidden', lang !== 'curl');
-  const titles = {
-    curl: curlMode === 'single' ? 'curl 单行命令（可直接粘贴到 cmd 运行）' : 'curl 命令（含结果检测）',
-    python: 'Python 脚本（含结果检测）',
-    nodejs: 'Node.js 脚本（含结果检测）'
-  };
-  document.getElementById('codeTitle').textContent = titles[lang] || lang;
   generateCode();
 }
 
@@ -446,203 +326,241 @@ function switchCurlMode(mode) {
   curlMode = mode;
   document.getElementById('curlModeMulti').classList.toggle('active', mode === 'multi');
   document.getElementById('curlModeSingle').classList.toggle('active', mode === 'single');
-  const title = mode === 'single' ? 'curl 单行命令（CMD / PowerShell 均可直接粘贴运行）' : 'curl 命令（含结果检测）';
-  document.getElementById('codeTitle').textContent = title;
   generateCode();
-}
-
-function escJson(obj) {
-  return JSON.stringify(obj).replace(/'/g, "'\\''");
 }
 
 function generateCode() {
   const cfg = TYPE_CONFIG[currentType];
-  const baseUrl = document.getElementById('baseUrl').value.trim();
+  const fullUrl = getFullUrl();
   const apiKey = document.getElementById('apiKey').value.trim();
   const model = document.getElementById('model').value.trim();
   const prompt = document.getElementById('prompt').value.trim();
   const size = document.getElementById('size').value;
   const imageUrl = document.getElementById('imageUrl').value.trim();
   const duration = document.getElementById('duration').value;
-  const style = document.getElementById('apiStyle').value;
-  const endpoint = cfg.defaultEndpoint;
-  const fullUrl = baseUrl + endpoint;
+
+  // URL preview
+  document.getElementById('urlPreview').textContent = '→ 完整接口: ' + fullUrl;
 
   let code = '', pollCode = '';
   if (currentLang === 'curl') {
-    code = genCurl(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, style, curlMode);
-    if (currentType === 'video-gen') pollCode = genCurlPoll(fullUrl, apiKey, curlMode);
+    code = genCurl(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, curlMode);
+    if (currentType === 'video-gen') pollCode = genCurlPoll(getPollUrl(), apiKey, curlMode);
   } else if (currentLang === 'python') {
-    code = genPython(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, style);
-    if (currentType === 'video-gen') pollCode = genPythonPoll(fullUrl, apiKey);
+    code = genPython(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration);
+    if (currentType === 'video-gen') pollCode = genPythonPoll(getPollUrl(), apiKey);
   } else if (currentLang === 'nodejs') {
-    code = genNodejs(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, style);
-    if (currentType === 'video-gen') pollCode = genNodejsPoll(fullUrl, apiKey);
+    code = genNodejs(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration);
+    if (currentType === 'video-gen') pollCode = genNodejsPoll(getPollUrl(), apiKey);
   }
   document.getElementById('codeOutput').textContent = code;
   if (pollCode) document.getElementById('pollCode').textContent = pollCode;
+
+  // Update title
+  const titles = {
+    curl: curlMode === 'single' ? 'curl 单行命令（CMD/PowerShell 可直接运行）' : 'curl 命令（多行）',
+    python: 'Python 脚本（含结果检测）',
+    nodejs: 'Node.js 脚本（含结果检测）'
+  };
+  document.getElementById('codeTitle').textContent = titles[currentLang] || titles.curl;
 }
 
-// ─── curl generators ───
-function genCurl(type, url, key, model, prompt, size, img, dur, style, mode) {
-  // Build the JSON body and curl command
-  let body, fullUrl = url;
-  const isWindows = mode === 'single';
+// ─── Build JSON body per type ───
+function buildBody(type, model, prompt, size, img, dur) {
+  if (type === 'text') return { model, messages: [{ role: 'user', content: prompt }] };
+  if (type === 'text2image') return { model, prompt, size, watermark: false };
+  if (type === 'image2image') return { contents: [{ role: 'USER', parts: [{ text: prompt }, { fileData: { mimeType: 'image/png', fileUri: img } }] }], generationConfig: { imageConfig: { aspectRatio: '16:9' }, responseModalities: ['IMAGE'] } };
+  if (type === 'image-edit') return { model, input: { messages: [{ role: 'user', content: [{ image: img }, { text: prompt }] }] }, parameters: { n: 1, watermark: false, size } };
+  if (type === 'gpt-image') return { prompt, size, quality: 'medium', n: 1, model };
+  if (type === 'video-gen') return { model, content: [{ type: 'text', text: prompt }], duration: parseInt(dur), watermark: false };
+}
 
-  if (type === 'text') {
-    if (style === 'gemini') {
-      fullUrl = url.replace('/chat/completions','') + '/models/' + model + ':generateContent';
-      body = {contents:[{parts:[{text:prompt}]}]};
-    } else {
-      body = {model, messages:[{role:"user",content:prompt}]};
-    }
-  } else if (type === 'text2image') {
-    if (style === 'gemini') {
-      fullUrl = url.replace('/imagegenerator','') + '/imagegenerator/google/models/' + model + ':generateContent';
-      body = {contents:[{parts:[{text:prompt}]}], generationConfig:{responseModalities:["IMAGE"]}};
-    } else {
-      body = {model, prompt, size, watermark:false};
-    }
-  } else if (type === 'image2image') {
-    if (style === 'gemini') {
-      fullUrl = url.replace('/imagegenerator','') + '/imagegenerator/google/models/' + model + ':generateContent';
-      body = {contents:[{role:"USER",parts:[{text:prompt},{fileData:{mimeType:"image/png",fileUri:img}}]}],generationConfig:{imageConfig:{aspectRatio:"16:9"},responseModalities:["IMAGE"]}};
-    } else {
-      body = {model, prompt, image:img, size, watermark:false};
-    }
-  } else if (type === 'image-edit') {
-    body = {model, input:{messages:[{role:"user",content:[{image:img},{text:prompt}]}]}, parameters:{n:1,watermark:false,size}};
-  } else if (type === 'video-gen') {
-    body = {model, content:[{type:"text",text:prompt}], duration:parseInt(dur), watermark:false};
-  }
-
-  const bodyJson = JSON.stringify(body, null, isWindows ? 0 : 2);
-  const headerStr = isWindows
-    ? `-H "Content-Type: application/json" -H "Authorization: Bearer ${key}"`
-    : `-H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${key}"`;
-  const method = type === 'video-gen' ? '-X POST ' : '';
-  const bodyFlag = isWindows
-    ? `-d "${bodyJson.replace(/"/g, '\\"')}"`
-    : `-d '${bodyJson.replace(/'/g, "'\\''")}'`;
+// ─── curl ───
+function genCurl(type, url, key, model, prompt, size, img, dur, mode) {
+  const body = buildBody(type, model, prompt, size, img, dur);
+  const compactJson = JSON.stringify(body);
+  const isPost = (type === 'video-gen' || type === 'image-edit' || type === 'image2image' || type === 'gpt-image');
 
   if (mode === 'single') {
-    // Windows CMD single-line: no comments, no bash logic, pure one-line curl
-    // JSON compact, all inner double quotes escaped as \" for CMD
-    const compactJson = JSON.stringify(body);
+    // 单行: curl.exe --%  CMD/PowerShell 通用
     const winBody = compactJson.replace(/"/g, '\\"');
-    const postFlag = type === 'video-gen' ? '-X POST ' : '';
-    return `curl.exe --% ${postFlag}"${fullUrl}" -H "Content-Type: application/json" -H "Authorization: Bearer ${key}" -d "${winBody}"`;
+    const postFlag = isPost ? '-X POST ' : '';
+    return 'curl.exe --% "' + url + '" -H "Content-Type: application/json" -H "Authorization: Bearer ' + key + '" -d "' + winBody + '"';
   }
 
-  // Multi-line mode (with result checking)
-  const successMsg = type === 'video-gen' ? '任务提交成功' :
-                     type === 'text2image' ? '图片生成成功' :
-                     type === 'image2image' ? '图生图成功' :
-                     type === 'image-edit' ? '图像编辑成功' : '调用成功';
-  const failMsg = type === 'video-gen' ? '任务提交失败' :
-                  type === 'text2image' ? '图片生成失败' :
-                  type === 'image2image' ? '图生图失败' :
-                  type === 'image-edit' ? '图像编辑失败' : '调用失败';
-  const label = type === 'video-gen' ? '# ① 提交视频生成任务\n' :
-                type === 'text2image' ? '# ① 发起文生图请求\n' :
-                type === 'image2image' ? '# ① 发起图生图请求\n' :
-                type === 'image-edit' ? '# ① 发起图像编辑请求\n' : '# ① 发起请求\n';
-
-  const jsonEscaped = bodyJson.replace(/'/g, "'\\''");
-  const okCheck = type === 'video-gen' ? '[ "$code" = "200" ] || [ "$code" = "201" ]' : '[ "$code" = "200" ]';
-
-  const lines = [
-    label.slice(0, -1),
-    `curl -s -w "\\n%{http_code}" ${method}"${fullUrl}" \\`,
-    `  ${headerStr} \\`,
-    `  -d '${jsonEscaped}' | {`,
-    `  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);`,
-    `  if ${okCheck}; then`,
-    `    echo "✅ ${successMsg} (HTTP $code)"`,
-    `    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"`,
-    `  else`,
-    `    echo "❌ ${failMsg} (HTTP $code)"`,
-    `    echo "$resp"`,
-    `  fi`,
-    `}`
-  ];
+  // 多行
+  const lines = ['# ' + (isPost ? 'POST' : 'GET') + ' ' + url];
+  lines.push('curl -s -w "\\n%{http_code}" ' + (isPost ? '-X POST ' : '') + '"' + url + '" \\');
+  lines.push('  -H "Content-Type: application/json" \\');
+  lines.push('  -H "Authorization: Bearer ' + key + '" \\');
+  lines.push("  -d '" + compactJson + "'");
+  lines.push('');
+  lines.push('# 查看响应: status_code=200 表示成功');
   return lines.join('\n');
 }
 
 function genCurlPoll(url, key, mode) {
   if (mode === 'single') {
-    return `curl.exe --% -X GET "${url}/替换为实际task_id" -H "Authorization: Bearer ${key}"`;
+    return 'curl.exe --% -X GET "' + url + '/替换为实际task_id" -H "Authorization: Bearer ' + key + '"';
   }
-  return `# ② 轮询查询视频生成结果（将 TASK_ID 替换为实际任务 ID）\nTASK_ID="替换为实际 task_id"\ncurl -s -w "\\n%{http_code}" -X GET "${url}/${TASK_ID}" \\\n  -H "Authorization: Bearer ${key}" | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    status=$(echo "$resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))" 2>/dev/null)\n    if [ "$status" = "succeeded" ] || [ "$status" = "SUCCESS" ] || [ "$status" = "completed" ]; then\n      echo "✅ 视频生成完成！"\n      echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n    elif [ "$status" = "failed" ] || [ "$status" = "ERROR" ]; then\n      echo "❌ 视频生成失败"\n      echo "$resp"\n    else\n      echo "⏳ 任务进行中 (status: $status)，请稍后重试"\n      echo "$resp"\n    fi\n  else\n    echo "❌ 查询失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+  return [
+    '# 将 TASK_ID 替换为实际任务 ID',
+    'TASK_ID="替换为实际 task_id"',
+    'curl -s -X GET "' + url + '/${TASK_ID}" \\',
+    '  -H "Authorization: Bearer ' + key + '"',
+  ].join('\n');
 }
 
-// ─── Python generators ───
-function genPython(type, url, key, model, prompt, size, img, dur, style) {
-  const hdr = `    headers={\n        "Authorization": f"Bearer {API_KEY}",\n        "Content-Type": "application/json",\n    }`;
-  const tryCatch = (successMsg, failMsg, extra) => `    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ ${successMsg}")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n${extra || ''}    else:\n        print("❌ ${failMsg}")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+// ─── Python ───
+function genPython(type, url, key, model, prompt, size, img, dur) {
+  const body = buildBody(type, model, prompt, size, img, dur);
+  const bodyStr = JSON.stringify(body, null, 2);
+  const isPost = (type === 'video-gen' || type === 'image-edit' || type === 'image2image' || type === 'gpt-image' || type === 'text' || type === 'text2image');
+  const successMsg = type === 'video-gen' ? '任务提交成功' : type === 'text2image' ? '图片生成成功' : type === 'image2image' ? '图生图成功' : type === 'image-edit' ? '图像编辑成功' : type === 'gpt-image' ? '图片生成成功' : '调用成功';
+  const failMsg = successMsg.replace('成功', '失败');
+  const extra = type === 'video-gen' ? '        task_id = data.get("id") or data.get("task_id")\n        print(f"\\n👉 Task ID: {task_id}")\n' : '';
 
-  if (type === 'text') {
-    if (style === 'gemini') {
-      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/chat/completions','')}/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "contents": [{"parts": [{"text": "${prompt}"}]}]\n        },\n        timeout=60\n    )\n${tryCatch('调用成功','调用失败')}`;
-    }
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "messages": [{"role": "user", "content": "${prompt}"}]\n        },\n        timeout=60\n    )\n${tryCatch('调用成功','调用失败')}`;
-  }
-  if (type === 'text2image') {
-    if (style === 'gemini') {
-      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "contents": [{"parts": [{"text": "${prompt}"}]}],\n            "generationConfig": {"responseModalities": ["IMAGE"]}\n        },\n        timeout=120\n    )\n${tryCatch('图片生成成功','图片生成失败')}`;
-    }
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "prompt": "${prompt}",\n            "size": "${size}",\n            "watermark": False\n        },\n        timeout=120\n    )\n${tryCatch('图片生成成功','图片生成失败')}`;
-  }
-  if (type === 'image2image') {
-    if (style === 'gemini') {
-      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "contents": [{\n                "role": "USER",\n                "parts": [\n                    {"text": "${prompt}"},\n                    {"fileData": {"mimeType": "image/png", "fileUri": "${img}"}}\n                ]\n            }],\n            "generationConfig": {"imageConfig": {"aspectRatio": "16:9"}, "responseModalities": ["IMAGE"]}\n        },\n        timeout=120\n    )\n${tryCatch('图生图成功','图生图失败')}`;
-    }
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "prompt": "${prompt}",\n            "image": "${img}",\n            "size": "${size}",\n            "watermark": False\n        },\n        timeout=120\n    )\n${tryCatch('图生图成功','图生图失败')}`;
-  }
-  if (type === 'image-edit') {
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "input": {\n                "messages": [{\n                    "role": "user",\n                    "content": [{"image": "${img}"}, {"text": "${prompt}"}]\n                }]\n            },\n            "parameters": {"n": 1, "watermark": False, "size": "${size}"}\n        },\n        timeout=120\n    )\n${tryCatch('图像编辑成功','图像编辑失败')}`;
-  }
-  if (type === 'video-gen') {
-    const extra = `        task_id = data.get("id") or data.get("task_id")\n        print(f"\\n👉 Task ID: {task_id}")\n        print("将此 ID 填入下方轮询代码查询生成结果")\n`;
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "content": [{"type": "text", "text": "${prompt}"}],\n            "duration": ${dur},\n            "watermark": False\n        },\n        timeout=60\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code in (200, 201):\n        print("✅ 任务提交成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n${extra}    else:\n        print("❌ 任务提交失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
-  }
+  return [
+    'import requests, json',
+    '',
+    'API_KEY = "' + key + '"',
+    'URL = "' + url + '"',
+    '',
+    'try:',
+    '    resp = requests.post(',
+    '        URL,',
+    '        headers={',
+    '            "Authorization": f"Bearer {API_KEY}",',
+    '            "Content-Type": "application/json",',
+    '        },',
+    '        json=' + bodyStr.replace(/\n/g, '\n        '),
+    '        timeout=120',
+    '    )',
+    '    print(f"HTTP 状态码: {resp.status_code}")',
+    '    data = resp.json()',
+    '    if resp.status_code in (200, 201):',
+    '        print("✅ ' + successMsg + '")',
+    '        print(json.dumps(data, indent=2, ensure_ascii=False))',
+    extra + '    else:',
+    '        print("❌ ' + failMsg + '")',
+    '        print(json.dumps(data, indent=2, ensure_ascii=False))',
+    'except requests.exceptions.Timeout:',
+    '    print("❌ 请求超时")',
+    'except requests.exceptions.ConnectionError:',
+    '    print("❌ 连接失败，请检查 URL 或网络")',
+    'except Exception as e:',
+    '    print(f"❌ 异常: {e}")',
+  ].join('\n');
 }
+
 function genPythonPoll(url, key) {
-  return `import time, requests, json\n\nAPI_KEY = "${key}"\nBASE_URL = "${url}"\nTASK_ID = "替换为实际 task_id"\n\nwhile True:\n    try:\n        resp = requests.get(\n            f"{BASE_URL}/{TASK_ID}",\n            headers={"Authorization": f"Bearer {API_KEY}"},\n            timeout=30\n        )\n        print(f"HTTP 状态码: {resp.status_code}")\n        data = resp.json()\n        status = data.get("status", "unknown")\n        print(f"任务状态: {status}")\n        if status in ("succeeded", "SUCCESS", "completed"):\n            print("✅ 视频生成完成！")\n            print(json.dumps(data, indent=2, ensure_ascii=False))\n            break\n        elif status in ("failed", "ERROR"):\n            print("❌ 视频生成失败")\n            print(json.dumps(data, indent=2, ensure_ascii=False))\n            break\n        else:\n            print("⏳ 生成中，5 秒后重试...")\n            time.sleep(5)\n    except Exception as e:\n        print(f"❌ 查询异常: {e}")\n        time.sleep(5)`;
+  return [
+    'import time, requests, json',
+    '',
+    'API_KEY = "' + key + '"',
+    'BASE_URL = "' + url + '"',
+    'TASK_ID = "替换为实际 task_id"',
+    '',
+    'while True:',
+    '    try:',
+    '        resp = requests.get(',
+    '            f"{BASE_URL}/{TASK_ID}",',
+    '            headers={"Authorization": f"Bearer {API_KEY}"},',
+    '            timeout=30',
+    '        )',
+    '        print(f"HTTP 状态码: {resp.status_code}")',
+    '        data = resp.json()',
+    '        status = data.get("status", "unknown")',
+    '        print(f"任务状态: {status}")',
+    '        if status in ("succeeded", "SUCCESS", "completed"):',
+    '            print("✅ 视频生成完成！")',
+    '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+    '            break',
+    '        elif status in ("failed", "ERROR"):',
+    '            print("❌ 视频生成失败")',
+    '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+    '            break',
+    '        else:',
+    '            print("⏳ 生成中，5 秒后重试...")',
+    '            time.sleep(5)',
+    '    except Exception as e:',
+    '        print(f"❌ 查询异常: {e}")',
+    '        time.sleep(5)',
+  ].join('\n');
 }
 
-// ─── Node.js generators ───
-function genNodejs(type, url, key, model, prompt, size, img, dur, style) {
-  const hdr = `    headers: {\n      "Authorization": ` + '`Bearer ${API_KEY}`' + `,\n      "Content-Type": "application/json",\n    },`;
-  const tryCatch = (successMsg, failMsg) => `  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ ${successMsg}");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ ${failMsg}");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+// ─── Node.js ───
+function genNodejs(type, url, key, model, prompt, size, img, dur) {
+  const body = buildBody(type, model, prompt, size, img, dur);
+  const bodyStr = JSON.stringify(body, null, 2);
+  const successMsg = type === 'video-gen' ? '任务提交成功' : type === 'text2image' ? '图片生成成功' : type === 'image2image' ? '图生图成功' : type === 'image-edit' ? '图像编辑成功' : type === 'gpt-image' ? '图片生成成功' : '调用成功';
+  const failMsg = successMsg.replace('成功', '失败');
+  const extra = type === 'video-gen' ? '\n    console.log("👉 Task ID:", data.id || data.task_id);' : '';
 
-  if (type === 'text') {
-    if (style === 'gemini') {
-      return `const API_KEY = "***";\nconst URL = "${url.replace('/chat/completions','')}/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: "${prompt}" }] }]\n    })\n  });\n${tryCatch('调用成功','调用失败')}`;
-    }
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      messages: [{ role: "user", content: "${prompt}" }]\n    })\n  });\n${tryCatch('调用成功','调用失败')}`;
-  }
-  if (type === 'text2image') {
-    if (style === 'gemini') {
-      return `const API_KEY = "***";\nconst URL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: "${prompt}" }] }],\n      generationConfig: { responseModalities: ["IMAGE"] }\n    })\n  });\n${tryCatch('图片生成成功','图片生成失败')}`;
-    }
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      prompt: "${prompt}",\n      size: "${size}",\n      watermark: false\n    })\n  });\n${tryCatch('图片生成成功','图片生成失败')}`;
-  }
-  if (type === 'image2image') {
-    if (style === 'gemini') {
-      return `const API_KEY = "***";\nconst URL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{\n        role: "USER",\n        parts: [\n          { text: "${prompt}" },\n          { fileData: { mimeType: "image/png", fileUri: "${img}" } }\n        ]\n      }],\n      generationConfig: { imageConfig: { aspectRatio: "16:9" }, responseModalities: ["IMAGE"] }\n    })\n  });\n${tryCatch('图生图成功','图生图失败')}`;
-    }
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      prompt: "${prompt}",\n      image: "${img}",\n      size: "${size}",\n      watermark: false\n    })\n  });\n${tryCatch('图生图成功','图生图失败')}`;
-  }
-  if (type === 'image-edit') {
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      input: {\n        messages: [{\n          role: "user",\n          content: [{ image: "${img}" }, { text: "${prompt}" }]\n        }]\n      },\n      parameters: { n: 1, watermark: false, size: "${size}" }\n    })\n  });\n${tryCatch('图像编辑成功','图像编辑失败')}`;
-  }
-  if (type === 'video-gen') {
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      content: [{ type: "text", text: "${prompt}" }],\n      duration: ${dur},\n      watermark: false\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 任务提交成功");\n    console.log(JSON.stringify(data, null, 2));\n    console.log("👉 Task ID:", data.id || data.task_id);\n    console.log("将此 ID 填入下方轮询代码查询生成结果");\n  } else {\n    console.log("❌ 任务提交失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
-  }
+  return [
+    'const API_KEY = "' + key + '";',
+    'const URL = "' + url + '";',
+    '',
+    'try {',
+    '  const resp = await fetch(URL, {',
+    '    method: "POST",',
+    '    headers: {',
+    '      "Authorization": `Bearer ${API_KEY}`,',
+    '      "Content-Type": "application/json",',
+    '    },',
+    '    body: JSON.stringify(' + bodyStr.replace(/\n/g, '\n    ') + ')',
+    '  });',
+    '  console.log("HTTP 状态码:", resp.status);',
+    '  const data = await resp.json();',
+    '  if (resp.ok) {',
+    '    console.log("✅ ' + successMsg + '");',
+    '    console.log(JSON.stringify(data, null, 2));' + extra,
+    '  } else {',
+    '    console.log("❌ ' + failMsg + '");',
+    '    console.log(JSON.stringify(data, null, 2));',
+    '  }',
+    '} catch (e) {',
+    '  console.log("❌ 异常:", e.message);',
+    '}',
+  ].join('\n');
 }
+
 function genNodejsPoll(url, key) {
-  return `const API_KEY = "***";\nconst BASE_URL = "${url}";\nconst TASK_ID = "替换为实际 task_id";\n\nasync function pollTask() {\n  while (true) {\n    try {\n      const resp = await fetch(` + '`${BASE_URL}/${TASK_ID}`' + `, {\n        headers: { "Authorization": ` + '`Bearer ${API_KEY}`' + ` }\n      });\n      console.log("HTTP 状态码:", resp.status);\n      const data = await resp.json();\n      const status = data.status || "unknown";\n      console.log("任务状态:", status);\n      if (["succeeded", "SUCCESS", "completed"].includes(status)) {\n        console.log("✅ 视频生成完成！");\n        console.log(JSON.stringify(data, null, 2));\n        break;\n      } else if (["failed", "ERROR"].includes(status)) {\n        console.log("❌ 视频生成失败");\n        console.log(JSON.stringify(data, null, 2));\n        break;\n      } else {\n        console.log("⏳ 生成中，5 秒后重试...");\n        await new Promise(r => setTimeout(r, 5000));\n      }\n    } catch (e) {\n      console.log("❌ 查询异常:", e.message);\n      await new Promise(r => setTimeout(r, 5000));\n    }\n  }\n}\npollTask();`;
+  return [
+    'const API_KEY = "' + key + '";',
+    'const BASE_URL = "' + url + '";',
+    'const TASK_ID = "替换为实际 task_id";',
+    '',
+    'async function pollTask() {',
+    '  while (true) {',
+    '    try {',
+    '      const resp = await fetch(`${BASE_URL}/${TASK_ID}`, {',
+    '        headers: { "Authorization": `Bearer ${API_KEY}` }',
+    '      });',
+    '      console.log("HTTP 状态码:", resp.status);',
+    '      const data = await resp.json();',
+    '      const status = data.status || "unknown";',
+    '      console.log("任务状态:", status);',
+    '      if (["succeeded", "SUCCESS", "completed"].includes(status)) {',
+    '        console.log("✅ 视频生成完成！");',
+    '        console.log(JSON.stringify(data, null, 2));',
+    '        break;',
+    '      } else if (["failed", "ERROR"].includes(status)) {',
+    '        console.log("❌ 视频生成失败");',
+    '        console.log(JSON.stringify(data, null, 2));',
+    '        break;',
+    '      } else {',
+    '        console.log("⏳ 生成中，5 秒后重试...");',
+    '        await new Promise(r => setTimeout(r, 5000));',
+    '      }',
+    '    } catch (e) {',
+    '      console.log("❌ 查询异常:", e.message);',
+    '      await new Promise(r => setTimeout(r, 5000));',
+    '    }',
+    '  }',
+    '}',
+    'pollTask();',
+  ].join('\n');
 }
 
 function copyCode(btn) {
@@ -655,10 +573,13 @@ function copyCode(btn) {
 }
 
 document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', () => switchType(a.dataset.type)));
-['baseUrl','apiKey','model','prompt','size','imageUrl','duration','apiStyle'].forEach(id => {
+['baseUrl','apiKey','model','prompt','size','imageUrl','duration'].forEach(id => {
   const el = document.getElementById(id);
   if (el) { el.addEventListener('input', generateCode); el.addEventListener('change', generateCode); }
 });
+
+// 默认单行模式
+switchCurlMode('single');
 switchType('text');
 </script>
 </body>

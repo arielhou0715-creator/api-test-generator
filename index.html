@@ -103,11 +103,47 @@
         <div class="form-field" id="imageField" style="display:none">
           <label>输入图片 URL</label>
           <input type="text" id="imageUrl" value="https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_5_imageToimage.png">
-          <div class="hint">图生图/图像编辑时填写</div>
+          <div class="hint">图生图/图像编辑/图生视频时填写</div>
         </div>
-        <div class="form-field" id="durationField" style="display:none">
-          <label>视频时长（秒）</label>
-          <input type="text" id="duration" value="5" placeholder="如 5">
+        <div class="form-field field-hidden" id="videoParams" style="flex:1 1 100%">
+          <div class="form-row" style="margin-bottom:0">
+            <div class="form-field" style="min-width:120px;flex:0 0 auto">
+              <label>视频时长（秒）</label>
+              <input type="text" id="duration" value="5" placeholder="如 5" style="width:80px">
+            </div>
+            <div class="form-field" style="min-width:140px;flex:0 0 auto">
+              <label>分辨率</label>
+              <select id="resolution">
+                <option value="480p">480p</option>
+                <option value="720p" selected>720p</option>
+                <option value="1080p">1080p</option>
+                <option value="4K">4K</option>
+              </select>
+            </div>
+            <div class="form-field" style="min-width:120px;flex:0 0 auto">
+              <label>宽高比</label>
+              <select id="ratio">
+                <option value="16:9" selected>16:9（横屏）</option>
+                <option value="9:16">9:16（竖屏）</option>
+                <option value="1:1">1:1（正方）</option>
+                <option value="4:3">4:3</option>
+              </select>
+            </div>
+            <div class="form-field" style="min-width:120px;flex:0 0 auto">
+              <label>水印</label>
+              <select id="watermark">
+                <option value="false" selected>否</option>
+                <option value="true">是</option>
+              </select>
+            </div>
+            <div class="form-field" style="min-width:120px;flex:0 0 auto">
+              <label>生成音频</label>
+              <select id="genAudio">
+                <option value="true" selected>是</option>
+                <option value="false">否</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
       <div class="divider"></div>
@@ -212,7 +248,7 @@ function switchType(type){
   badge.textContent=t.badge;badge.className='badge'+(t.badgeAsync?' async':'');
   document.getElementById('typeDesc').textContent=t.desc;
   document.getElementById('imageField').style.display=t.showImage?'':'none';
-  document.getElementById('durationField').style.display=t.showDuration?'':'none';
+  document.getElementById('videoParams').classList.toggle('field-hidden',!t.showDuration);
   // 显示参考文档原始 URL 作为提示
   document.getElementById('refUrlHint').textContent='参考文档 URL: ' + t.refUrl;
   document.getElementById('asyncTip').style.display=t.isAsync?'':'none';
@@ -246,7 +282,24 @@ function generateCode(){
   const t=TEMPLATES[currentType];
   const url=getFinalUrl();
   const apiKey=document.getElementById('apiKey').value.trim();
-  const body=t.body;
+  // For video types, build body dynamically from form params
+  let body=t.body;
+  if(t.isAsync && t.showDuration){
+    const duration=document.getElementById('duration').value.trim()||'5';
+    const resolution=document.getElementById('resolution').value;
+    const ratio=document.getElementById('ratio').value;
+    const watermark=document.getElementById('watermark').value==='true';
+    const genAudio=document.getElementById('genAudio').value==='true';
+    const model='sophvideo-2.0';
+    const prompt=t.body.match(/"text":"([^"]+)"/);
+    const promptText=prompt ? prompt[1] : '';
+    if(currentType==='video-gen'){
+      body=JSON.stringify({model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration),watermark:watermark});
+    } else if(currentType==='video-img'){
+      const img=document.getElementById('imageUrl').value.trim()||'https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625';
+      body=JSON.stringify({model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration),watermark:watermark});
+    }
+  }
 
   if(currentMode==='curl'){
     // CMD 单行: curl.exe "URL" -H "..." -H "..." -d "{\"key\":\"value\"}"
@@ -357,7 +410,7 @@ function autoExtractDomain(){
   }
 }
 
-['baseUrl','newDomain','apiKey','imageUrl','duration'].forEach(id=>{
+['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermark','genAudio'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });

@@ -137,9 +137,6 @@
                 <option value="custom">有水印 (true)</option>
               </select>
             </div>
-            <div class="form-field field-hidden" id="watermarkTextField" style="display:none">
-              <span style="font-size:12px;color:var(--muted)">水印参数已设为 true</span>
-            </div>
             <div class="form-field" style="min-width:120px;flex:0 0 auto">
               <label>生成音频</label>
               <select id="genAudio">
@@ -302,7 +299,6 @@ function generateCode(){
     const duration=document.getElementById('duration').value.trim()||'5';
     const resolution=document.getElementById('resolution').value;
     const ratio=document.getElementById('ratio').value;
-    const wmText=document.getElementById('watermark').value.trim()||'水印';
     const genAudio=document.getElementById('genAudio').value==='true';
     const model='sophvideo-2.0';
     const prompt=t.body.match(/"text":"([^"]+)"/);

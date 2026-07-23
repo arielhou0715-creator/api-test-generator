@@ -356,15 +356,18 @@ function generateCode(){
       document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/'+taskId+'" -H "Authorization: Bearer '+apiKey+'"';
     }
   } else {
-    // Python (using urllib, no pip install needed)
+    // Python: dict + json.dumps to avoid JSON format errors
+    var parsed; try{parsed=JSON.parse(body)}catch(e){parsed={}}
+    var dl=[]; for(var k in parsed){var v=parsed[k]; var vs; if(v===true)vs="True"; else if(v===false)vs="False"; else if(typeof v==="number")vs=String(v); else if(typeof v==="object")vs=JSON.stringify(v); else vs="\""+String(v).replace(/\"/g,"\\\"")+"\""; dl.push("    \""+k+"\": "+vs)}
+    var dictStr="{\n"+dl.join(",\n")+"\n}";
     const code=[
-      'import urllib.request, json','',
+      'import urllib.request, urllib.error, json','',
       'API_KEY = "'+apiKey+'"',
       'URL = "'+url+'"',
-      "BODY = '" + body + "'",'',
+      "body = " + dictStr,'',
       'req = urllib.request.Request(',
       '    URL,',
-      '    data=BODY.encode("utf-8"),',
+      '    data=json.dumps(body, ensure_ascii=False).encode("utf-8"),',
       '    headers={',
       '        "Authorization": "Bearer " + API_KEY,',
       '        "Content-Type": "application/json",',
@@ -394,7 +397,7 @@ function generateCode(){
       const pollUrl=getPollUrl();
       const taskId=document.getElementById('taskIdInput').value.trim()||'替换为实际task_id';
       document.getElementById('pollCode').textContent=[
-        'import urllib.request, json, time','',
+        'import urllib.request, urllib.error, json, time','',
         'API_KEY = "'+apiKey+'"',
         'URL = "'+pollUrl+'/'+taskId+'"','',
         'while True:',

@@ -78,6 +78,7 @@
   <nav class="sidebar">
     <div class="brand"><span class="dot"></span>API 代码生成器</div>
     <div class="nav-group-title">测试目的</div>
+    <a data-type="models"><span class="num">0</span><span class="label-wrap">查询可用模型<span class="sub">先查支持哪些模型</span></span></a>
     <a data-type="text" class="active"><span class="num">1</span><span class="label-wrap">文本调用<span class="sub">Chat / Completion</span></span></a>
     <a data-type="text2image"><span class="num">2</span><span class="label-wrap">文生图<span class="sub">Doubao-Seedream</span></span></a>
     <a data-type="image2image"><span class="num">3</span><span class="label-wrap">图生图<span class="sub">Gemini-Image</span></span></a>
@@ -112,8 +113,9 @@
 
       <div class="form-row">
         <div class="form-field">
-          <label>模型名称 <span class="req">*</span></label>
-          <input type="text" id="model" value="DeepSeek-V3" placeholder="如 doubao-seedream-5-0-260128">
+          <label>模型名称 <span class="req">*</span> <button class="query-models-btn" onclick="switchType('models')" style="margin-left:8px;font-size:12px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:3px 10px;cursor:pointer;">查询可用模型</button></label>
+          <input type="text" id="model" value="" placeholder="先点左侧「查询可用模型」获取平台支持的模型名">
+          <div class="hint">不同平台支持的模型不同，请先查询再填写</div>
         </div>
         <div class="form-field" id="sizeField">
           <label>尺寸 / 分辨率</label>
@@ -209,6 +211,15 @@
 <script>
 // 每种类型的接口路径与参考文档保持一致
 const TYPE_CONFIG = {
+  models: {
+    icon: '🔍', title: '查询可用模型', badge: 'GET /models',
+    desc: '查询当前平台支持的模型列表，返回 JSON 含所有可用模型名。请先运行此命令确认模型名再进行其他测试。',
+    showFields: { size: false, image: false, duration: false },
+    endpoint: '/api/open-apis/projects/v1/models',
+    prompts: [],
+    defaultPrompt: '',
+    defaultModel: '',
+  },
   text: {
     icon: '📝', title: '文本调用', badge: 'Chat / Completion',
     desc: '调用大模型进行文本对话或补全，测试模型是否正常响应。',
@@ -314,6 +325,16 @@ function switchType(type) {
   document.getElementById('imageField').classList.toggle('field-hidden', !cfg.showFields.image);
   document.getElementById('durationField').classList.toggle('field-hidden', !cfg.showFields.duration);
   document.getElementById('model').value = cfg.defaultModel;
+  // Hide prompt area for models query
+  const promptArea = document.getElementById('prompt').closest('.form-row');
+  const presetsArea = document.getElementById('promptPresets').closest('.form-row');
+  if (type === 'models') {
+    promptArea.style.display = 'none';
+    presetsArea.style.display = 'none';
+  } else {
+    promptArea.style.display = '';
+    presetsArea.style.display = '';
+  }
   const presets = document.getElementById('promptPresets');
   presets.innerHTML = '';
   cfg.prompts.forEach((p, i) => {
@@ -386,6 +407,7 @@ function generateCode() {
 
 // ─── Build JSON body per type ───
 function buildBody(type, model, prompt, size, img, dur) {
+  if (type === 'models') return null; // GET request, no body
   if (type === 'text') return { model, messages: [{ role: 'user', content: prompt }] };
   if (type === 'text2image') return { model, prompt, size, watermark: false };
   if (type === 'image2image') return { contents: [{ role: 'USER', parts: [{ text: prompt }, { fileData: { mimeType: 'image/png', fileUri: img } }] }], generationConfig: { imageConfig: { aspectRatio: '16:9' }, responseModalities: ['IMAGE'] } };
@@ -396,6 +418,18 @@ function buildBody(type, model, prompt, size, img, dur) {
 
 // ─── curl ───
 function genCurl(type, url, key, model, prompt, size, img, dur, mode) {
+  if (type === 'models') {
+    // GET request to list models
+    if (mode === 'single') {
+      return 'curl.exe "' + url + '" -H "Authorization: Bearer ' + key + '"';
+    }
+    return [
+      '# 查询可用模型列表',
+      'curl -s "' + url + '" \\',
+      '  -H "Authorization: Bearer ' + key + '"',
+      '# 返回 JSON 含所有支持的模型名',
+    ].join('\n');
+  }
   const body = buildBody(type, model, prompt, size, img, dur);
   const compactJson = JSON.stringify(body);
   const isPost = (type === 'video-gen' || type === 'image-edit' || type === 'image2image' || type === 'gpt-image');
@@ -432,6 +466,38 @@ function genCurlPoll(url, key, mode) {
 
 // ─── Python ───
 function genPython(type, url, key, model, prompt, size, img, dur) {
+  if (type === 'models') {
+    return [
+      'import requests, json',
+      '',
+      'API_KEY = "' + key + '"',
+      'URL = "' + url + '"',
+      '',
+      'try:',
+      '    resp = requests.get(',
+      '        URL,',
+      '        headers={"Authorization": f"Bearer {API_KEY}"},',
+      '        timeout=30',
+      '    )',
+      '    print(f"HTTP 状态码: {resp.status_code}")',
+      '    data = resp.json()',
+      '    if resp.status_code == 200:',
+      '        print("✅ 查询成功")',
+      '        # 打印所有模型名',
+      '        models = data.get("data", data) if isinstance(data, dict) else data',
+      '        if isinstance(models, list):',
+      '            for m in models:',
+      '                name = m.get("id", m) if isinstance(m, dict) else m',
+      '                print(f"  - {name}")',
+      '        else:',
+      '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+      '    else:',
+      '        print("❌ 查询失败")',
+      '        print(json.dumps(data, indent=2, ensure_ascii=False))',
+      'except Exception as e:',
+      '    print(f"❌ 异常: {e}")',
+    ].join('\n');
+  }
   const body = buildBody(type, model, prompt, size, img, dur);
   const bodyStr = JSON.stringify(body, null, 2);
   const isPost = (type === 'video-gen' || type === 'image-edit' || type === 'image2image' || type === 'gpt-image' || type === 'text' || type === 'text2image');
@@ -510,6 +576,34 @@ function genPythonPoll(url, key) {
 
 // ─── Node.js ───
 function genNodejs(type, url, key, model, prompt, size, img, dur) {
+  if (type === 'models') {
+    return [
+      'const API_KEY = "' + key + '";',
+      'const URL = "' + url + '";',
+      '',
+      'try {',
+      '  const resp = await fetch(URL, {',
+      '    headers: { "Authorization": `Bearer ${API_KEY}` }',
+      '  });',
+      '  console.log("HTTP 状态码:", resp.status);',
+      '  const data = await resp.json();',
+      '  if (resp.ok) {',
+      '    console.log("✅ 查询成功");',
+      '    const models = data.data || data;',
+      '    if (Array.isArray(models)) {',
+      '      models.forEach(m => console.log("  -", typeof m === "string" ? m : (m.id || m.name || JSON.stringify(m))));',
+      '    } else {',
+      '      console.log(JSON.stringify(data, null, 2));',
+      '    }',
+      '  } else {',
+      '    console.log("❌ 查询失败");',
+      '    console.log(JSON.stringify(data, null, 2));',
+      '  }',
+      '} catch (e) {',
+      '  console.log("❌ 异常:", e.message);',
+      '}',
+    ].join('\n');
+  }
   const body = buildBody(type, model, prompt, size, img, dur);
   const bodyStr = JSON.stringify(body, null, 2);
   const successMsg = type === 'video-gen' ? '任务提交成功' : type === 'text2image' ? '图片生成成功' : type === 'image2image' ? '图生图成功' : type === 'image-edit' ? '图像编辑成功' : type === 'gpt-image' ? '图片生成成功' : '调用成功';

@@ -90,9 +90,9 @@
           <div class="hint">从参考文档复制 URL → 粘贴 → 自动提取域名 → 替换为你平台的域名</div>
         </div>
         <div class="form-field">
-          <label>你的平台域名<span class="req">*</span></label>
+          <label>你的平台域名（自动提取，可手动修改）<span class="req">*</span></label>
           <input type="text" id="newDomain" value="model.sidus-ai.com" placeholder="如 model.sidus-ai.com">
-          <div class="hint">替换到此域名</div>
+          <div class="hint">从平台网址自动提取，识别失败时可手动修改</div>
         </div>
         <div class="form-field">
           <label>API Key<span class="req">*</span></label>
@@ -106,8 +106,8 @@
           <div class="hint">图生图/图像编辑时填写</div>
         </div>
         <div class="form-field" id="durationField" style="display:none">
-          <label>视频时长</label>
-          <select id="duration"><option value="5">5秒</option><option value="8">8秒</option></select>
+          <label>视频时长（秒）</label>
+          <input type="text" id="duration" value="5" placeholder="如 5">
         </div>
       </div>
       <div class="divider"></div>
@@ -332,10 +332,32 @@ function copyCode(btn){
 
 // Event listeners
 document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>switchType(a.dataset.type)));
+
+// Auto-extract domain from baseUrl
+function autoExtractDomain(){
+  const url=document.getElementById('baseUrl').value.trim();
+  if(!url) return;
+  let u=url;
+  if(!u.startsWith('http://')&&!u.startsWith('https://')) u='https://'+u;
+  try{
+    const parsed=new URL(u);
+    const domain=parsed.hostname;
+    // Only update if user hasn't manually edited, or always update (allowing override)
+    document.getElementById('newDomain').value=domain;
+    generateCode();
+  }catch(e){
+    // URL not complete yet, don't update
+  }
+}
+
 ['baseUrl','newDomain','apiKey','imageUrl','duration'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });
+
+// Add auto-extract listener on baseUrl
+document.getElementById('baseUrl').addEventListener('input',autoExtractDomain);
+document.getElementById('baseUrl').addEventListener('paste',function(){setTimeout(autoExtractDomain,0)});
 
 switchType('text2image');
 </script>

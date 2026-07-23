@@ -6,45 +6,32 @@
 <title>API 测试代码生成器</title>
 <style>
   :root {
-    --bg: #f6f7f9;
+    --bg: #f0f4ff;
     --panel: #ffffff;
-    --sidebar: #0f1729;
-    --sidebar-fg: #cbd5e1;
-    --sidebar-active: #2563eb;
+    --sidebar: #e8ecf6;
+    --sidebar-fg: #475569;
+    --sidebar-active-bg: #6366f1;
+    --sidebar-active-fg: #fff;
     --text: #1e2430;
     --muted: #64748b;
-    --border: #e2e8f0;
-    --code-bg: #0f1729;
-    --code-fg: #e2e8f0;
-    --accent: #2563eb;
-    --tag: #eff4ff;
-    --tag-fg: #2563eb;
+    --border: #e0e7ee;
+    --code-bg: #f8fafc;
+    --code-fg: #1e2430;
+    --code-border: #e0e7ee;
+    --accent: #6366f1;
+    --accent-light: #eef2ff;
+    --tag: #eef2ff;
+    --tag-fg: #6366f1;
     --input-bg: #fff;
-    --input-border: #d1d5db;
+    --input-border: #cbd5e1;
     --green: #16a34a;
-    --green-bg: rgba(22,163,74,.1);
+    --green-bg: #f0fdf4;
     --red: #ef4444;
-    --red-bg: rgba(239,68,68,.1);
+    --red-bg: #fef2f2;
     --amber: #f59e0b;
-  }
-  html[data-theme="dark"] {
-    --bg: #0b1120;
-    --panel: #131b2e;
-    --sidebar: #080d18;
-    --sidebar-fg: #94a3b8;
-    --sidebar-active: #3b82f6;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-    --border: #263248;
-    --code-bg: #060b15;
-    --code-fg: #dbe4f0;
-    --accent: #60a5fa;
-    --tag: #1e293b;
-    --tag-fg: #93c5fd;
-    --input-bg: #1a2438;
-    --input-border: #334155;
-    --green-bg: rgba(22,163,74,.15);
-    --red-bg: rgba(239,68,68,.15);
+    --amber-bg: #fffbeb;
+    --shadow: 0 1px 3px rgba(99,102,241,.08);
+    --shadow-md: 0 4px 12px rgba(99,102,241,.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -56,12 +43,13 @@
   nav.sidebar {
     width: 260px; flex-shrink: 0; background: var(--sidebar); color: var(--sidebar-fg);
     position: sticky; top: 0; align-self: flex-start; height: 100vh; overflow-y: auto; padding: 22px 0;
+    border-right: 1px solid var(--border);
   }
   .brand {
-    padding: 0 22px 18px; font-size: 15px; font-weight: 700; color: #fff;
+    padding: 0 22px 18px; font-size: 15px; font-weight: 700; color: var(--text);
     letter-spacing: .3px; display: flex; align-items: center; gap: 8px;
   }
-  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--sidebar-active); }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
   nav .nav-group-title {
     padding: 14px 22px 6px; font-size: 11px; text-transform: uppercase;
     letter-spacing: 1px; color: var(--muted); font-weight: 600;
@@ -69,40 +57,37 @@
   nav a {
     display: flex; align-items: center; gap: 10px; padding: 9px 22px;
     color: var(--sidebar-fg); text-decoration: none; font-size: 14px;
-    border-left: 3px solid transparent; transition: background .15s, color .15s; cursor: pointer;
+    border-left: 3px solid transparent; transition: all .15s; cursor: pointer;
+    border-radius: 0 8px 8px 0; margin-right: 8px;
   }
-  nav a:hover { background: rgba(255,255,255,.05); color: #fff; }
-  nav a.active { border-left-color: var(--sidebar-active); background: rgba(37,99,235,.14); color: #fff; }
+  nav a:hover { background: rgba(99,102,241,.08); color: var(--text); }
+  nav a.active { background: var(--sidebar-active-bg); color: var(--sidebar-active-fg); border-left-color: var(--accent); }
   nav a .num {
     width: 22px; height: 22px; flex-shrink: 0; display: grid; place-items: center;
-    background: rgba(255,255,255,.08); border-radius: 6px; font-size: 12px; font-weight: 700;
+    background: rgba(99,102,241,.12); border-radius: 6px; font-size: 12px; font-weight: 700;
   }
-  nav a.active .num { background: var(--sidebar-active); color: #fff; }
+  nav a.active .num { background: rgba(255,255,255,.25); color: #fff; }
   nav a .sub { font-size: 11px; color: var(--muted); display: block; }
+  nav a.active .sub { color: rgba(255,255,255,.8); }
   nav a .label-wrap { display: flex; flex-direction: column; line-height: 1.25; }
 
   main { flex: 1; min-width: 0; padding: 36px 44px 80px; }
   header.top { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
   header.top h1 { font-size: 24px; margin: 0 0 4px; }
   header.top p { margin: 0; color: var(--muted); font-size: 14px; }
-  .theme-toggle {
-    background: var(--panel); border: 1px solid var(--border); color: var(--text);
-    border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px;
-    display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.08);
-  }
 
   .form-card {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; padding: 24px; margin-bottom: 24px;
+    border-radius: 14px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-md);
   }
   .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
   .form-field { flex: 1; min-width: 220px; }
   .form-field label {
     display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px;
   }
-  .form-field label .req { color: #ef4444; }
+  .form-field label .req { color: var(--red); }
   .form-field input, .form-field select, .form-field textarea {
-    width: 100%; padding: 9px 12px; font-size: 14px; border: 1px solid var(--input-border);
+    width: 100%; padding: 9px 12px; font-size: 14px; border: 1.5px solid var(--input-border);
     border-radius: 8px; background: var(--input-bg); color: var(--text);
     font-family: inherit; outline: none; transition: border-color .15s;
   }
@@ -114,32 +99,34 @@
   .lang-tabs { display: flex; gap: 0; margin-bottom: 0; }
   .lang-tab {
     padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
-    background: transparent; border: 1px solid var(--border); border-bottom: none;
+    background: var(--panel); border: 1px solid var(--border); border-bottom: none;
     border-radius: 8px 8px 0 0; color: var(--muted); transition: all .15s;
   }
-  .lang-tab.active { background: var(--code-bg); color: var(--code-fg); border-color: var(--code-bg); }
+  .lang-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   .code-section { margin-top: 24px; }
   .code-wrap { position: relative; }
   .code-header {
     display: flex; justify-content: space-between; align-items: center;
     background: var(--code-bg); padding: 10px 16px; border-radius: 10px 10px 0 0;
+    border: 1px solid var(--code-border); border-bottom: none;
   }
-  .code-header .title { font-size: 13px; color: var(--code-fg); opacity: .7; }
+  .code-header .title { font-size: 13px; color: var(--muted); font-weight: 600; }
   .copy-btn {
-    background: rgba(255,255,255,.1); color: #e2e8f0; border: 1px solid rgba(255,255,255,.15);
-    border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .15s;
+    background: var(--accent-light); color: var(--accent); border: 1px solid var(--border);
+    border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
   }
-  .copy-btn:hover { background: rgba(255,255,255,.2); }
+  .copy-btn:hover { background: var(--accent); color: #fff; }
   .copy-btn.done { background: var(--green); border-color: var(--green); color: #fff; }
   pre {
     background: var(--code-bg); color: var(--code-fg); padding: 16px 18px;
-    border-radius: 0 0 10px 10px; overflow-x: auto; font-size: 12.8px; line-height: 1.6; margin: 0;
+    border-radius: 0 0 10px 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 0;
     font-family: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
-    max-height: 560px; overflow-y: auto;
+    max-height: 560px; overflow-y: auto; border: 1px solid var(--code-border);
+    white-space: pre-wrap; word-break: break-all;
   }
   .tip {
-    border-left: 3px solid var(--amber); background: rgba(245,158,11,.08);
+    border-left: 3px solid var(--amber); background: var(--amber-bg);
     padding: 10px 14px; border-radius: 6px; font-size: 13.5px; margin: 12px 0; color: var(--text);
   }
   .section-title {
@@ -151,17 +138,27 @@
     display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 9px;
     border-radius: 20px; background: var(--tag); color: var(--tag-fg);
   }
-  .badge.async { background: rgba(245,158,11,.14); color: var(--amber); }
+  .badge.async { background: var(--amber-bg); color: var(--amber); }
 
   .prompt-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
   .prompt-chip {
     display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px;
-    cursor: pointer; background: var(--tag); border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; background: var(--accent-light); border: 1px solid var(--border); border-radius: 8px;
     color: var(--text); transition: all .15s;
   }
   .prompt-chip:hover { border-color: var(--accent); }
   .prompt-chip.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
   .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* curl mode toggle */
+  .curl-mode-toggle {
+    display: flex; gap: 4px; background: var(--accent-light); border-radius: 8px; padding: 3px;
+  }
+  .curl-mode-btn {
+    padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+    border: none; background: transparent; color: var(--muted); border-radius: 6px; transition: all .15s;
+  }
+  .curl-mode-btn.active { background: var(--accent); color: #fff; }
 
   @media (max-width: 820px) {
     nav.sidebar { display: none; }
@@ -185,10 +182,9 @@
   <main>
     <header class="top">
       <div>
-        <h1>API 测试代码生成器</h1>
+        <h1>🧪 API 测试代码生成器</h1>
         <p>选择测试目的 → 填写接口信息 → 生成含结果检测的可直接运行代码</p>
       </div>
-      <button class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span><span id="themeLabel">深色</span></button>
     </header>
 
     <div class="form-card">
@@ -270,6 +266,13 @@
             <option value="gemini">Gemini 格式</option>
             <option value="custom">自定义 JSON</option>
           </select>
+        </div>
+        <div class="form-field field-hidden" id="curlModeField" style="flex: 0 0 auto; min-width: 220px;">
+          <label>curl 格式</label>
+          <div class="curl-mode-toggle">
+            <button class="curl-mode-btn active" id="curlModeMulti" onclick="switchCurlMode('multi')">多行（易读）</button>
+            <button class="curl-mode-btn" id="curlModeSingle" onclick="switchCurlMode('single')">单行（可直接粘贴到 cmd 运行）</button>
+          </div>
         </div>
       </div>
     </div>
@@ -387,22 +390,7 @@ const TYPE_CONFIG = {
 
 let currentType = 'text';
 let currentLang = 'curl';
-
-// Theme
-function toggleTheme() {
-  const html = document.documentElement;
-  const cur = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', cur); localStorage.setItem('theme', cur); updateThemeBtn(cur);
-}
-function updateThemeBtn(t) {
-  document.getElementById('themeIcon').textContent = t === 'dark' ? '☀️' : '🌙';
-  document.getElementById('themeLabel').textContent = t === 'dark' ? '浅色' : '深色';
-}
-(function initTheme() {
-  const saved = localStorage.getItem('theme')
-    || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', saved); updateThemeBtn(saved);
-})();
+let curlMode = 'multi'; // 'multi' or 'single'
 
 function switchType(type) {
   currentType = type;
@@ -444,9 +432,27 @@ function switchLang(lang) {
   document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + lang).classList.add('active');
   document.getElementById('langSelect').value = lang;
-  const titles = { curl: 'curl 命令（含结果检测）', python: 'Python 脚本（含结果检测）', nodejs: 'Node.js 脚本（含结果检测）' };
+  document.getElementById('curlModeField').classList.toggle('field-hidden', lang !== 'curl');
+  const titles = {
+    curl: curlMode === 'single' ? 'curl 单行命令（可直接粘贴到 cmd 运行）' : 'curl 命令（含结果检测）',
+    python: 'Python 脚本（含结果检测）',
+    nodejs: 'Node.js 脚本（含结果检测）'
+  };
   document.getElementById('codeTitle').textContent = titles[lang] || lang;
   generateCode();
+}
+
+function switchCurlMode(mode) {
+  curlMode = mode;
+  document.getElementById('curlModeMulti').classList.toggle('active', mode === 'multi');
+  document.getElementById('curlModeSingle').classList.toggle('active', mode === 'single');
+  const title = mode === 'single' ? 'curl 单行命令（可直接粘贴到 cmd 运行）' : 'curl 命令（含结果检测）';
+  document.getElementById('codeTitle').textContent = title;
+  generateCode();
+}
+
+function escJson(obj) {
+  return JSON.stringify(obj).replace(/'/g, "'\\''");
 }
 
 function generateCode() {
@@ -464,8 +470,8 @@ function generateCode() {
 
   let code = '', pollCode = '';
   if (currentLang === 'curl') {
-    code = genCurl(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, style);
-    if (currentType === 'video-gen') pollCode = genCurlPoll(fullUrl, apiKey);
+    code = genCurl(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, style, curlMode);
+    if (currentType === 'video-gen') pollCode = genCurlPoll(fullUrl, apiKey, curlMode);
   } else if (currentLang === 'python') {
     code = genPython(currentType, fullUrl, apiKey, model, prompt, size, imageUrl, duration, style);
     if (currentType === 'video-gen') pollCode = genPythonPoll(fullUrl, apiKey);
@@ -478,63 +484,123 @@ function generateCode() {
 }
 
 // ─── curl generators ───
-function genCurl(type, url, key, model, prompt, size, img, dur, style) {
-  const H = `-H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${key}"`;
+function genCurl(type, url, key, model, prompt, size, img, dur, style, mode) {
+  // Build the JSON body and curl command
+  let body, fullUrl = url;
+  const isWindows = mode === 'single';
+
   if (type === 'text') {
     if (style === 'gemini') {
-      return `# ① 发起请求\ncurl -s -w "\\n%{http_code}" ${url.replace('/chat/completions','')}/models/${model}:generateContent \\\n  ${H} \\\n  -d '{\n    "contents": [{"parts": [{"text": "${prompt}"}]}]\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 调用成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 调用失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+      fullUrl = url.replace('/chat/completions','') + '/models/' + model + ':generateContent';
+      body = {contents:[{parts:[{text:prompt}]}]};
+    } else {
+      body = {model, messages:[{role:"user",content:prompt}]};
     }
-    return `# ① 发起请求\ncurl -s -w "\\n%{http_code}" ${url} \\\n  ${H} \\\n  -d '{\n    "model": "${model}",\n    "messages": [{"role": "user", "content": "${prompt}"}]\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 调用成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 调用失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
-  }
-  if (type === 'text2image') {
+  } else if (type === 'text2image') {
     if (style === 'gemini') {
-      return `# ① 发起文生图请求\ncurl -s -w "\\n%{http_code}" ${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent \\\n  ${H} \\\n  -d '{\n    "contents": [{"parts": [{"text": "${prompt}"}]}],\n    "generationConfig": {"responseModalities": ["IMAGE"]}\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 图片生成成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 图片生成失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+      fullUrl = url.replace('/imagegenerator','') + '/imagegenerator/google/models/' + model + ':generateContent';
+      body = {contents:[{parts:[{text:prompt}]}], generationConfig:{responseModalities:["IMAGE"]}};
+    } else {
+      body = {model, prompt, size, watermark:false};
     }
-    return `# ① 发起文生图请求\ncurl -s -w "\\n%{http_code}" ${url} \\\n  ${H} \\\n  -d '{\n    "model": "${model}",\n    "prompt": "${prompt}",\n    "size": "${size}",\n    "watermark": false\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 图片生成成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 图片生成失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
-  }
-  if (type === 'image2image') {
+  } else if (type === 'image2image') {
     if (style === 'gemini') {
-      return `# ① 发起图生图请求\ncurl -s -w "\\n%{http_code}" ${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent \\\n  ${H} \\\n  -d '{\n    "contents": [{"role": "USER","parts": [{"text": "${prompt}"},{"fileData": {"mimeType": "image/png","fileUri": "${img}"}}]}],\n    "generationConfig": {"imageConfig": {"aspectRatio": "16:9"},"responseModalities": ["IMAGE"]}\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 图生图成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 图生图失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+      fullUrl = url.replace('/imagegenerator','') + '/imagegenerator/google/models/' + model + ':generateContent';
+      body = {contents:[{role:"USER",parts:[{text:prompt},{fileData:{mimeType:"image/png",fileUri:img}}]}],generationConfig:{imageConfig:{aspectRatio:"16:9"},responseModalities:["IMAGE"]}};
+    } else {
+      body = {model, prompt, image:img, size, watermark:false};
     }
-    return `# ① 发起图生图请求\ncurl -s -w "\\n%{http_code}" ${url} \\\n  ${H} \\\n  -d '{\n    "model": "${model}",\n    "prompt": "${prompt}",\n    "image": "${img}",\n    "size": "${size}",\n    "watermark": false\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 图生图成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 图生图失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+  } else if (type === 'image-edit') {
+    body = {model, input:{messages:[{role:"user",content:[{image:img},{text:prompt}]}]}, parameters:{n:1,watermark:false,size}};
+  } else if (type === 'video-gen') {
+    body = {model, content:[{type:"text",text:prompt}], duration:parseInt(dur), watermark:false};
   }
-  if (type === 'image-edit') {
-    return `# ① 发起图像编辑请求\ncurl -s -w "\\n%{http_code}" ${url} \\\n  ${H} \\\n  -d '{\n    "model": "${model}",\n    "input": {"messages": [{"role": "user","content": [{"image": "${img}"},{"text": "${prompt}"}]}]},\n    "parameters": {"n": 1,"watermark": false,"size": "${size}"}\n  }' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    echo "✅ 图像编辑成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ 图像编辑失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+
+  const bodyJson = JSON.stringify(body, null, isWindows ? 0 : 2);
+  const headerStr = isWindows
+    ? `-H "Content-Type: application/json" -H "Authorization: Bearer ${key}"`
+    : `-H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${key}"`;
+  const method = type === 'video-gen' ? '-X POST ' : '';
+  const bodyFlag = isWindows
+    ? `-d "${bodyJson.replace(/"/g, '\\"')}"`
+    : `-d '${bodyJson.replace(/'/g, "'\\''")}'`;
+
+  if (mode === 'single') {
+    // Single line: Windows cmd compatible
+    // Use ^ for line continuation in Windows cmd, or just keep it truly single line
+    const label = type === 'video-gen' ? '# ① 提交视频生成任务（直接粘贴到 cmd 运行）\n' :
+                  type === 'text2image' ? '# 文生图请求（直接粘贴到 cmd 运行）\n' :
+                  type === 'image2image' ? '# 图生图请求（直接粘贴到 cmd 运行）\n' :
+                  type === 'image-edit' ? '# 图像编辑请求（直接粘贴到 cmd 运行）\n' :
+                  '# 文本调用请求（直接粘贴到 cmd 运行）\n';
+
+    // For Windows cmd: use double quotes, escape inner double quotes, wrap JSON in double quotes
+    // Windows cmd doesn't support single quotes, so we need: -d "{\"key\":\"value\"}"
+    const winBody = bodyJson.replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\"');
+    const urlStr = type === 'video-gen' ? `"${fullUrl}"` : `"${fullUrl}"`;
+
+    if (type === 'video-gen') {
+      return `${label}curl -X POST ${urlStr} -H "Content-Type: application/json" -H "Authorization: Bearer ${key}" -d "${winBody}"`;
+    }
+    return `${label}curl ${urlStr} -H "Content-Type: application/json" -H "Authorization: Bearer ${key}" -d "${winBody}"`;
   }
-  if (type === 'video-gen') {
-    return `# ① 提交视频生成任务\ncurl -s -w "\\n%{http_code}" -X POST "${url}" \\\n  ${H} \\\n  -d '{\n  "model": "${model}",\n  "content": [{"type": "text","text": "${prompt}"}],\n  "duration": ${dur},\n  "watermark": false\n}' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ] || [ "$code" = "201" ]; then\n    echo "✅ 任务提交成功 (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n    echo ""\n    echo "👉 从上方返回中找到 task_id / id，填入下方查询命令"\n  else\n    echo "❌ 任务提交失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
-  }
+
+  // Multi-line mode (with result checking)
+  const successMsg = type === 'video-gen' ? '任务提交成功' :
+                     type === 'text2image' ? '图片生成成功' :
+                     type === 'image2image' ? '图生图成功' :
+                     type === 'image-edit' ? '图像编辑成功' : '调用成功';
+  const failMsg = type === 'video-gen' ? '任务提交失败' :
+                  type === 'text2image' ? '图片生成失败' :
+                  type === 'image2image' ? '图生图失败' :
+                  type === 'image-edit' ? '图像编辑失败' : '调用失败';
+  const label = type === 'video-gen' ? '# ① 提交视频生成任务\n' :
+                type === 'text2image' ? '# ① 发起文生图请求\n' :
+                type === 'image2image' ? '# ① 发起图生图请求\n' :
+                type === 'image-edit' ? '# ① 发起图像编辑请求\n' : '# ① 发起请求\n';
+
+  const jsonEscaped = bodyJson.replace(/'/g, "'\\''");
+  const successCodes = type === 'video-gen' ? '"200" "201"' : '"200"';
+
+  return `${label}curl -s -w "\\n%{http_code}" ${method}"${fullUrl}" \\\n  ${headerStr} \\\n  -d '${jsonEscaped}' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = ${successCodes.replace(/" "/g,'"') || [ "$code" = ${successCodes.split(' ')[1] || '200'} ]; then\n    echo "✅ ${successMsg} (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ ${failMsg} (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
 }
-function genCurlPoll(url, key) {
+
+function genCurlPoll(url, key, mode) {
+  if (mode === 'single') {
+    return `# ② 轮询查询视频生成结果（将 TASK_ID 替换为实际任务 ID，直接粘贴到 cmd 运行）\nset TASK_ID=替换为实际 task_id\ncurl -X GET "${url}/%TASK_ID%" -H "Authorization: Bearer ${key}"`;
+  }
   return `# ② 轮询查询视频生成结果（将 TASK_ID 替换为实际任务 ID）\nTASK_ID="替换为实际 task_id"\ncurl -s -w "\\n%{http_code}" -X GET "${url}/${TASK_ID}" \\\n  -H "Authorization: Bearer ${key}" | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = "200" ]; then\n    status=$(echo "$resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))" 2>/dev/null)\n    if [ "$status" = "succeeded" ] || [ "$status" = "SUCCESS" ] || [ "$status" = "completed" ]; then\n      echo "✅ 视频生成完成！"\n      echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n    elif [ "$status" = "failed" ] || [ "$status" = "ERROR" ]; then\n      echo "❌ 视频生成失败"\n      echo "$resp"\n    else\n      echo "⏳ 任务进行中 (status: $status)，请稍后重试"\n      echo "$resp"\n    fi\n  else\n    echo "❌ 查询失败 (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
 }
 
 // ─── Python generators ───
 function genPython(type, url, key, model, prompt, size, img, dur, style) {
-  const commonHeader = `    headers={\n        "Authorization": f"Bearer {API_KEY}",\n        "Content-Type": "application/json",\n    }`;
+  const hdr = `    headers={\n        "Authorization": f"Bearer {API_KEY}",\n        "Content-Type": "application/json",\n    }`;
+  const tryCatch = (successMsg, failMsg, extra) => `    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ ${successMsg}")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n${extra || ''}    else:\n        print("❌ ${failMsg}")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+
   if (type === 'text') {
     if (style === 'gemini') {
-      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/chat/completions','')}/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "contents": [{"parts": [{"text": "${prompt}"}]}]\n        },\n        timeout=60\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 调用成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 调用失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/chat/completions','')}/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "contents": [{"parts": [{"text": "${prompt}"}]}]\n        },\n        timeout=60\n    )\n${tryCatch('调用成功','调用失败')}`;
     }
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "model": "${model}",\n            "messages": [{"role": "user", "content": "${prompt}"}]\n        },\n        timeout=60\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 调用成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 调用失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "messages": [{"role": "user", "content": "${prompt}"}]\n        },\n        timeout=60\n    )\n${tryCatch('调用成功','调用失败')}`;
   }
   if (type === 'text2image') {
     if (style === 'gemini') {
-      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "contents": [{"parts": [{"text": "${prompt}"}]}],\n            "generationConfig": {"responseModalities": ["IMAGE"]}\n        },\n        timeout=120\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 图片生成成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 图片生成失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "contents": [{"parts": [{"text": "${prompt}"}]}],\n            "generationConfig": {"responseModalities": ["IMAGE"]}\n        },\n        timeout=120\n    )\n${tryCatch('图片生成成功','图片生成失败')}`;
     }
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "model": "${model}",\n            "prompt": "${prompt}",\n            "size": "${size}",\n            "watermark": False\n        },\n        timeout=120\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 图片生成成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 图片生成失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "prompt": "${prompt}",\n            "size": "${size}",\n            "watermark": False\n        },\n        timeout=120\n    )\n${tryCatch('图片生成成功','图片生成失败')}`;
   }
   if (type === 'image2image') {
     if (style === 'gemini') {
-      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "contents": [{\n                "role": "USER",\n                "parts": [\n                    {"text": "${prompt}"},\n                    {"fileData": {"mimeType": "image/png", "fileUri": "${img}"}}\n                ]\n            }],\n            "generationConfig": {"imageConfig": {"aspectRatio": "16:9"}, "responseModalities": ["IMAGE"]}\n        },\n        timeout=120\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 图生图成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 图生图失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+      return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "contents": [{\n                "role": "USER",\n                "parts": [\n                    {"text": "${prompt}"},\n                    {"fileData": {"mimeType": "image/png", "fileUri": "${img}"}}\n                ]\n            }],\n            "generationConfig": {"imageConfig": {"aspectRatio": "16:9"}, "responseModalities": ["IMAGE"]}\n        },\n        timeout=120\n    )\n${tryCatch('图生图成功','图生图失败')}`;
     }
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "model": "${model}",\n            "prompt": "${prompt}",\n            "image": "${img}",\n            "size": "${size}",\n            "watermark": False\n        },\n        timeout=120\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 图生图成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 图生图失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "prompt": "${prompt}",\n            "image": "${img}",\n            "size": "${size}",\n            "watermark": False\n        },\n        timeout=120\n    )\n${tryCatch('图生图成功','图生图失败')}`;
   }
   if (type === 'image-edit') {
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "model": "${model}",\n            "input": {\n                "messages": [{\n                    "role": "user",\n                    "content": [{"image": "${img}"}, {"text": "${prompt}"}]\n                }]\n            },\n            "parameters": {"n": 1, "watermark": False, "size": "${size}"}\n        },\n        timeout=120\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code == 200:\n        print("✅ 图像编辑成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n    else:\n        print("❌ 图像编辑失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "input": {\n                "messages": [{\n                    "role": "user",\n                    "content": [{"image": "${img}"}, {"text": "${prompt}"}]\n                }]\n            },\n            "parameters": {"n": 1, "watermark": False, "size": "${size}"}\n        },\n        timeout=120\n    )\n${tryCatch('图像编辑成功','图像编辑失败')}`;
   }
   if (type === 'video-gen') {
-    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${commonHeader},\n        json={\n            "model": "${model}",\n            "content": [{"type": "text", "text": "${prompt}"}],\n            "duration": ${dur},\n            "watermark": False\n        },\n        timeout=60\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code in (200, 201):\n        print("✅ 任务提交成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n        task_id = data.get("id") or data.get("task_id")\n        print(f"\\n👉 Task ID: {task_id}")\n        print("将此 ID 填入下方轮询代码查询生成结果")\n    else:\n        print("❌ 任务提交失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
+    const extra = `        task_id = data.get("id") or data.get("task_id")\n        print(f"\\n👉 Task ID: {task_id}")\n        print("将此 ID 填入下方轮询代码查询生成结果")\n`;
+    return `import requests, json\n\nAPI_KEY = "${key}"\nURL = "${url}"\n\ntry:\n    resp = requests.post(\n        URL,\n${hdr},\n        json={\n            "model": "${model}",\n            "content": [{"type": "text", "text": "${prompt}"}],\n            "duration": ${dur},\n            "watermark": False\n        },\n        timeout=60\n    )\n    print(f"HTTP 状态码: {resp.status_code}")\n    data = resp.json()\n    if resp.status_code in (200, 201):\n        print("✅ 任务提交成功")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\n${extra}    else:\n        print("❌ 任务提交失败")\n        print(json.dumps(data, indent=2, ensure_ascii=False))\nexcept requests.exceptions.Timeout:\n    print("❌ 请求超时")\nexcept requests.exceptions.ConnectionError:\n    print("❌ 连接失败，请检查 URL 或网络")\nexcept Exception as e:\n    print(f"❌ 异常: {e}")`;
   }
 }
 function genPythonPoll(url, key) {
@@ -544,26 +610,28 @@ function genPythonPoll(url, key) {
 // ─── Node.js generators ───
 function genNodejs(type, url, key, model, prompt, size, img, dur, style) {
   const hdr = `    headers: {\n      "Authorization": ` + '`Bearer ${API_KEY}`' + `,\n      "Content-Type": "application/json",\n    },`;
+  const tryCatch = (successMsg, failMsg) => `  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ ${successMsg}");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ ${failMsg}");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+
   if (type === 'text') {
     if (style === 'gemini') {
-      return `const API_KEY = "***";\nconst URL = "${url.replace('/chat/completions','')}/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: "${prompt}" }] }]\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 调用成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 调用失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+      return `const API_KEY = "***";\nconst URL = "${url.replace('/chat/completions','')}/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: "${prompt}" }] }]\n    })\n  });\n${tryCatch('调用成功','调用失败')}`;
     }
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      messages: [{ role: "user", content: "${prompt}" }]\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 调用成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 调用失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      messages: [{ role: "user", content: "${prompt}" }]\n    })\n  });\n${tryCatch('调用成功','调用失败')}`;
   }
   if (type === 'text2image') {
     if (style === 'gemini') {
-      return `const API_KEY = "***";\nconst URL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: "${prompt}" }] }],\n      generationConfig: { responseModalities: ["IMAGE"] }\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 图片生成成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 图片生成失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+      return `const API_KEY = "***";\nconst URL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: "${prompt}" }] }],\n      generationConfig: { responseModalities: ["IMAGE"] }\n    })\n  });\n${tryCatch('图片生成成功','图片生成失败')}`;
     }
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      prompt: "${prompt}",\n      size: "${size}",\n      watermark: false\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 图片生成成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 图片生成失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      prompt: "${prompt}",\n      size: "${size}",\n      watermark: false\n    })\n  });\n${tryCatch('图片生成成功','图片生成失败')}`;
   }
   if (type === 'image2image') {
     if (style === 'gemini') {
-      return `const API_KEY = "***";\nconst URL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{\n        role: "USER",\n        parts: [\n          { text: "${prompt}" },\n          { fileData: { mimeType: "image/png", fileUri: "${img}" } }\n        ]\n      }],\n      generationConfig: { imageConfig: { aspectRatio: "16:9" }, responseModalities: ["IMAGE"] }\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 图生图成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 图生图失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+      return `const API_KEY = "***";\nconst URL = "${url.replace('/imagegenerator','')}/imagegenerator/google/models/${model}:generateContent";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      contents: [{\n        role: "USER",\n        parts: [\n          { text: "${prompt}" },\n          { fileData: { mimeType: "image/png", fileUri: "${img}" } }\n        ]\n      }],\n      generationConfig: { imageConfig: { aspectRatio: "16:9" }, responseModalities: ["IMAGE"] }\n    })\n  });\n${tryCatch('图生图成功','图生图失败')}`;
     }
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      prompt: "${prompt}",\n      image: "${img}",\n      size: "${size}",\n      watermark: false\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 图生图成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 图生图失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      prompt: "${prompt}",\n      image: "${img}",\n      size: "${size}",\n      watermark: false\n    })\n  });\n${tryCatch('图生图成功','图生图失败')}`;
   }
   if (type === 'image-edit') {
-    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      input: {\n        messages: [{\n          role: "user",\n          content: [{ image: "${img}" }, { text: "${prompt}" }]\n        }]\n      },\n      parameters: { n: 1, watermark: false, size: "${size}" }\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 图像编辑成功");\n    console.log(JSON.stringify(data, null, 2));\n  } else {\n    console.log("❌ 图像编辑失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;
+    return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      input: {\n        messages: [{\n          role: "user",\n          content: [{ image: "${img}" }, { text: "${prompt}" }]\n        }]\n      },\n      parameters: { n: 1, watermark: false, size: "${size}" }\n    })\n  });\n${tryCatch('图像编辑成功','图像编辑失败')}`;
   }
   if (type === 'video-gen') {
     return `const API_KEY = "***";\nconst URL = "${url}";\n\ntry {\n  const resp = await fetch(URL, {\n    method: "POST",\n${hdr}\n    body: JSON.stringify({\n      model: "${model}",\n      content: [{ type: "text", text: "${prompt}" }],\n      duration: ${dur},\n      watermark: false\n    })\n  });\n  console.log("HTTP 状态码:", resp.status);\n  const data = await resp.json();\n  if (resp.ok) {\n    console.log("✅ 任务提交成功");\n    console.log(JSON.stringify(data, null, 2));\n    console.log("👉 Task ID:", data.id || data.task_id);\n    console.log("将此 ID 填入下方轮询代码查询生成结果");\n  } else {\n    console.log("❌ 任务提交失败");\n    console.log(JSON.stringify(data, null, 2));\n  }\n} catch (e) {\n  console.log("❌ 异常:", e.message);\n}`;

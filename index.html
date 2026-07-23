@@ -549,9 +549,24 @@ function genCurl(type, url, key, model, prompt, size, img, dur, style, mode) {
                 type === 'image-edit' ? '# ① 发起图像编辑请求\n' : '# ① 发起请求\n';
 
   const jsonEscaped = bodyJson.replace(/'/g, "'\\''");
-  const successCodes = type === 'video-gen' ? '"200" "201"' : '"200"';
+  const okCheck = type === 'video-gen' ? '[ "$code" = "200" ] || [ "$code" = "201" ]' : '[ "$code" = "200" ]';
 
-  return `${label}curl -s -w "\\n%{http_code}" ${method}"${fullUrl}" \\\n  ${headerStr} \\\n  -d '${jsonEscaped}' | {\n  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);\n  if [ "$code" = ${successCodes.replace(/" "/g,'"') || [ "$code" = ${successCodes.split(' ')[1] || '200'} ]; then\n    echo "✅ ${successMsg} (HTTP $code)"\n    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"\n  else\n    echo "❌ ${failMsg} (HTTP $code)"\n    echo "$resp"\n  fi\n}`;
+  const lines = [
+    label.slice(0, -1),
+    `curl -s -w "\\n%{http_code}" ${method}"${fullUrl}" \\`,
+    `  ${headerStr} \\`,
+    `  -d '${jsonEscaped}' | {`,
+    `  read body; code=$(echo "$body" | tail -1); resp=$(echo "$body" | head -n -1);`,
+    `  if ${okCheck}; then`,
+    `    echo "✅ ${successMsg} (HTTP $code)"`,
+    `    echo "$resp" | python3 -m json.tool 2>/dev/null || echo "$resp"`,
+    `  else`,
+    `    echo "❌ ${failMsg} (HTTP $code)"`,
+    `    echo "$resp"`,
+    `  fi`,
+    `}`
+  ];
+  return lines.join('\n');
 }
 
 function genCurlPoll(url, key, mode) {

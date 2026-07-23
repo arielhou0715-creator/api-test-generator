@@ -98,9 +98,9 @@
 
       <div class="form-row">
         <div class="form-field">
-          <label>Base URL（仅域名）<span class="req">*</span></label>
-          <input type="text" id="baseUrl" value="https://model.sidus-ai.com" placeholder="https://model.sidus-ai.com">
-          <div class="hint">只需填域名，接口路径会根据测试类型自动拼接</div>
+          <label>Base URL（粘贴任意平台完整网址，自动识别域名）<span class="req">*</span></label>
+          <input type="text" id="baseUrl" value="https://model.sidus-ai.com" placeholder="如 https://model.sidus-ai.com/api/open-apis/v1/chat/completions">
+          <div class="hint">粘贴任意网址即可，系统自动提取域名并拼接接口路径</div>
           <div class="url-preview" id="urlPreview"></div>
         </div>
         <div class="form-field">
@@ -213,7 +213,7 @@ const TYPE_CONFIG = {
     icon: '📝', title: '文本调用', badge: 'Chat / Completion',
     desc: '调用大模型进行文本对话或补全，测试模型是否正常响应。',
     showFields: { size: false, image: false, duration: false },
-    endpoint: '/api/open-apis/projects/v1/chat/completions',
+    endpoint: '/api/open-apis/projects/chat/completions',
     prompts: ['你好，请简单介绍一下你自己。','写一首关于春天的七言绝句。','解释什么是机器学习，用通俗的语言。','用 Python 写一个快速排序算法。','请把以下句子翻译成英文：今天天气真好。'],
     defaultPrompt: '你好，请简单介绍一下你自己。',
     defaultModel: 'DeepSeek-V3',
@@ -270,16 +270,33 @@ let currentType = 'text';
 let currentLang = 'curl';
 let curlMode = 'single';
 
+function extractDomain(input) {
+  input = input.trim();
+  if (!input) return '';
+  // 如果用户只输入了域名（没有 http），自动补上
+  if (!input.startsWith('http://') && !input.startsWith('https://')) {
+    input = 'https://' + input;
+  }
+  try {
+    const u = new URL(input);
+    return u.origin; // 返回 https://model.sidus-ai.com
+  } catch(e) {
+    return input; // 解析失败，原样返回
+  }
+}
+
 function getFullUrl() {
   const cfg = TYPE_CONFIG[currentType];
-  const base = document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+  const rawBase = document.getElementById('baseUrl').value.trim();
+  const base = extractDomain(rawBase).replace(/\/$/, '');
   let ep = cfg.endpoint.replace('{model}', document.getElementById('model').value.trim());
   return base + ep;
 }
 
 function getPollUrl() {
   const cfg = TYPE_CONFIG[currentType];
-  const base = document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+  const rawBase = document.getElementById('baseUrl').value.trim();
+  const base = extractDomain(rawBase).replace(/\/$/, '');
   let ep = (cfg.pollEndpoint || cfg.endpoint).replace('{model}', document.getElementById('model').value.trim());
   return base + ep;
 }
@@ -340,7 +357,9 @@ function generateCode() {
   const duration = document.getElementById('duration').value;
 
   // URL preview
-  document.getElementById('urlPreview').textContent = '→ 完整接口: ' + fullUrl;
+  const rawBase = document.getElementById('baseUrl').value.trim();
+  const domain = extractDomain(rawBase);
+  document.getElementById('urlPreview').textContent = '→ 识别域名: ' + domain + ' | 完整接口: ' + fullUrl;
 
   let code = '', pollCode = '';
   if (currentLang === 'curl') {

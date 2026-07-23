@@ -85,9 +85,9 @@
       <div class="section-desc" id="typeDesc">火山透传接口，根据文字描述生成图片。</div>
       <div class="form-row">
         <div class="form-field">
-          <label>平台网址（粘贴参考文档里的完整 URL，自动提取域名）<span class="req">*</span></label>
-          <input type="text" id="baseUrl" value="https://www.sophnet.com/api/open-apis/projects/easyllms/imagegenerator" placeholder="粘贴参考文档中的完整 URL">
-          <div class="hint">从参考文档复制 URL → 粘贴 → 自动提取域名 → 替换为你平台的域名</div>
+          <label>平台网址（粘贴你的平台任意网址，仅用于提取域名）<span class="req">*</span></label>
+          <input type="text" id="baseUrl" value="https://model.sidus-ai.com" placeholder="粘贴你的平台任意网址">
+          <div class="hint" id="refUrlHint"></div>
         </div>
         <div class="form-field">
           <label>你的平台域名（自动提取，可手动修改）<span class="req">*</span></label>
@@ -206,8 +206,8 @@ function switchType(type){
   document.getElementById('typeDesc').textContent=t.desc;
   document.getElementById('imageField').style.display=t.showImage?'':'none';
   document.getElementById('durationField').style.display=t.showDuration?'':'none';
-  // Set default baseUrl to refUrl
-  document.getElementById('baseUrl').value=t.refUrl;
+  // 显示参考文档原始 URL 作为提示
+  document.getElementById('refUrlHint').textContent='参考文档 URL: ' + t.refUrl;
   document.getElementById('asyncTip').style.display=t.isAsync?'':'none';
   document.getElementById('pollSection').style.display=t.isAsync?'':'none';
   generateCode();
@@ -223,11 +223,9 @@ function switchMode(mode){
 
 function getFinalUrl(){
   const t=TEMPLATES[currentType];
-  const refUrl=document.getElementById('baseUrl').value.trim();
   const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  // 把参考 URL 中的 www.sophnet.com 替换为新域名
-  let finalUrl=refUrl.replace(/www\.sophnet\.com/g,newDomain);
-  return finalUrl;
+  // 始终用参考文档的 URL 模板，只替换域名 www.sophnet.com -> 用户域名
+  return t.refUrl.replace(/www\.sophnet\.com/g,newDomain);
 }
 
 function getPollUrl(){

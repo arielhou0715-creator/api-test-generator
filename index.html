@@ -302,19 +302,26 @@ function generateCode(){
     const prompt=t.body.match(/"text":"([^"]+)"/);
     const promptText=prompt ? prompt[1] : '';
     if(currentType==='video-gen'){
-      body=JSON.stringify({model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration),watermark:wmText,web_search:webSearch});
+      var vd={model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration)};
+      var wmInput=document.getElementById('watermark').value.trim();
+      if(wmInput) vd.watermark=wmInput; else vd.watermark=false;
+      if(webSearch) vd.web_search=true;
+      body=JSON.stringify(vd);
     } else if(currentType==='video-img'){
       const img=document.getElementById('imageUrl').value.trim()||'https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625';
-      body=JSON.stringify({model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration),watermark:wmText,web_search:webSearch});
+      var vi={model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration)};
+      var wmInput2=document.getElementById('watermark').value.trim();
+      if(wmInput2) vi.watermark=wmInput2; else vi.watermark=false;
+      if(webSearch) vi.web_search=true;
+      body=JSON.stringify(vi);
     }
   } else {
-    // For non-video types, parse body and inject watermark + web_search
+    // For non-video types, only modify body when user sets non-default values
     try {
-      const parsed=JSON.parse(body);
-      if('watermark' in parsed){
-        parsed.watermark=document.getElementById('watermark').value.trim()||'水印';
-      }
-      parsed.web_search=webSearch;
+      var parsed=JSON.parse(body);
+      var wmVal=document.getElementById('watermark').value.trim();
+      if(wmVal) parsed.watermark=wmVal;
+      if(webSearch) parsed.web_search=true;
       body=JSON.stringify(parsed);
     } catch(e) {}
   }

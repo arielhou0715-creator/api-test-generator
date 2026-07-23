@@ -316,15 +316,17 @@ function generateCode(){
     const promptText=prompt ? prompt[1] : '';
     var wmType=document.getElementById('watermarkType').value;
     var wmVal=wmType==='custom'?document.getElementById('watermark').value.trim():'';
+    // watermark: true if custom selected, false otherwise. Only use string if text is filled.
+    var wmFinal=wmType==='custom'?(wmVal?wmVal:true):false;
     if(currentType==='video-gen'){
       var vd={model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration)};
-      if(wmVal) vd.watermark=wmVal; else vd.watermark=false;
+      if(wmFinal!==false) vd.watermark=wmFinal; else vd.watermark=false;
       if(webSearch) vd.web_search=true;
       body=JSON.stringify(vd);
     } else if(currentType==='video-img'){
       const img=document.getElementById('imageUrl').value.trim()||'https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625';
       var vi={model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration)};
-      if(wmVal) vi.watermark=wmVal; else vi.watermark=false;
+      if(wmFinal!==false) vi.watermark=wmFinal; else vi.watermark=false;
       if(webSearch) vi.web_search=true;
       body=JSON.stringify(vi);
     }
@@ -335,7 +337,7 @@ function generateCode(){
       var wmType2=document.getElementById('watermarkType').value;
       if(wmType2==='custom'){
         var wmVal2=document.getElementById('watermark').value.trim();
-        if(wmVal2) parsed.watermark=wmVal2;
+        parsed.watermark=wmVal2?wmVal2:true;
       }
       if(webSearch) parsed.web_search=true;
       body=JSON.stringify(parsed);

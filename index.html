@@ -130,12 +130,9 @@
                 <option value="4:3">4:3</option>
               </select>
             </div>
-            <div class="form-field" style="min-width:120px;flex:0 0 auto">
-              <label>水印</label>
-              <select id="watermark">
-                <option value="false" selected>否</option>
-                <option value="true">是</option>
-              </select>
+            <div class="form-field" style="min-width:140px;flex:0 0 auto">
+              <label>水印内容</label>
+              <input type="text" id="watermark" value="" placeholder="不填默认“水印”" style="width:120px">
             </div>
             <div class="form-field" style="min-width:120px;flex:0 0 auto">
               <label>生成音频</label>
@@ -145,6 +142,16 @@
               </select>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="form-row" id="commonParams" style="margin-bottom:12px">
+        <div class="form-field" style="flex:0 0 auto;min-width:160px">
+          <label>联网搜索</label>
+          <select id="webSearch">
+            <option value="false" selected>不启用</option>
+            <option value="true">启用</option>
+          </select>
+          <div class="hint">生图/生视频时可开启联网搜索</div>
         </div>
       </div>
       <div class="divider"></div>
@@ -283,23 +290,33 @@ function generateCode(){
   const t=TEMPLATES[currentType];
   const url=getFinalUrl();
   const apiKey=document.getElementById('apiKey').value.trim();
-  // For video types, build body dynamically from form params
+  const webSearch=document.getElementById('webSearch').value==='true';
   let body=t.body;
   if(t.isAsync && t.showDuration){
     const duration=document.getElementById('duration').value.trim()||'5';
     const resolution=document.getElementById('resolution').value;
     const ratio=document.getElementById('ratio').value;
-    const watermark=document.getElementById('watermark').value==='true';
+    const wmText=document.getElementById('watermark').value.trim()||'水印';
     const genAudio=document.getElementById('genAudio').value==='true';
     const model='sophvideo-2.0';
     const prompt=t.body.match(/"text":"([^"]+)"/);
     const promptText=prompt ? prompt[1] : '';
     if(currentType==='video-gen'){
-      body=JSON.stringify({model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration),watermark:watermark});
+      body=JSON.stringify({model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration),watermark:wmText,web_search:webSearch});
     } else if(currentType==='video-img'){
       const img=document.getElementById('imageUrl').value.trim()||'https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625';
-      body=JSON.stringify({model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration),watermark:watermark});
+      body=JSON.stringify({model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration),watermark:wmText,web_search:webSearch});
     }
+  } else {
+    // For non-video types, parse body and inject watermark + web_search
+    try {
+      const parsed=JSON.parse(body);
+      if('watermark' in parsed){
+        parsed.watermark=document.getElementById('watermark').value.trim()||'水印';
+      }
+      parsed.web_search=webSearch;
+      body=JSON.stringify(parsed);
+    } catch(e) {}
   }
 
   if(currentMode==='curl'){
@@ -411,7 +428,7 @@ function autoExtractDomain(){
   }
 }
 
-['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermark','genAudio'].forEach(id=>{
+['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermark','genAudio','webSearch'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });

@@ -228,9 +228,18 @@ curl https://api.example.com/v1/chat/completions \
       </div>
     </div>
 
-    <div id="asyncTip" class="tip" style="display:none">⚠️ 视频生成为异步任务：① 提交任务获取 task_id -> ② 轮询查询结果。</div>
+    <div id="asyncTip" class="tip" style="display:none">⚠️ 视频生成为异步任务：① 提交任务获取 task_id -> ② 填入下方输入框 -> ③ 轮询查询结果</div>
 
     <div class="code-section" id="pollSection" style="display:none">
+      <div class="form-card" style="margin-bottom:16px;padding:16px 20px">
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-field" style="flex:1;min-width:300px">
+            <label>填入 task_id（从上方运行结果获取）</label>
+            <input type="text" id="taskIdInput" placeholder="粘贴第一步返回的 task_id" style="font-family:SF Mono,Consolas,monospace;font-size:13px">
+            <div class="hint">填入后下方轮询代码自动更新</div>
+          </div>
+        </div>
+      </div>
       <div class="code-wrap">
         <div class="code-header">
           <span class="title">② 轮询查询结果</span>
@@ -664,7 +673,8 @@ function generateCode(){
     if(t.isAsync){
       const pollUrl=getPollUrl();
       const pollSuffix=t.pollSuffix||'';
-      document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/替换为实际task_id'+pollSuffix+'" -H "Authorization: Bearer '+apiKey+'"';
+      var tid=document.getElementById('taskIdInput').value.trim()||'替换为实际task_id';
+      document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/'+tid+pollSuffix+'" -H "Authorization: Bearer '+apiKey+'"';
     }
   } else {
     var p2;try{p2=JSON.parse(body)}catch(e){p2={}}
@@ -702,7 +712,7 @@ function generateCode(){
       document.getElementById('pollCode').textContent=[
         'import urllib.request, urllib.error, json, time','',
         'API_KEY = "'+apiKey+'"',
-        'URL = "'+pollUrl+'/替换为实际task_id'+pollSuffix+'"','',
+        'URL = "'+pollUrl+'/'+(document.getElementById('taskIdInput').value.trim()||'替换为实际task_id')+pollSuffix+'"','',
         'while True:',
         '    try:',
         '        req = urllib.request.Request(URL, headers={"Authorization": "Bearer " + API_KEY}, method="GET")',
@@ -753,7 +763,7 @@ function autoExtractDomain(){
   let u=url;if(!u.startsWith('http://')&&!u.startsWith('https://'))u='https://'+u;
   try{document.getElementById('newDomain').value=new URL(u).hostname;generateCode()}catch(e){}
 }
-['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermarkType','genAudio','webSearch'].forEach(id=>{
+['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermarkType','genAudio','webSearch','taskIdInput'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });

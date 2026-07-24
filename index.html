@@ -29,6 +29,21 @@
   header.top h1{font-size:24px;margin:0 0 4px}
   header.top p{margin:0;color:var(--muted);font-size:14px}
   .form-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;box-shadow:var(--shadow-md)}
+  .section-title{font-size:18px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .section-title .icon{font-size:20px}
+  .section-desc{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--tag);color:var(--tag-fg)}
+  .badge.async{background:var(--amber-bg);color:var(--amber)}
+  .vendor-card{background:var(--accent-light);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+  .vendor-card .v-row{font-size:13px;margin:4px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .vendor-card .v-row b{min-width:70px;color:var(--muted);font-weight:600}
+  .vendor-card a{color:var(--accent);word-break:break-all}
+  .model-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .model-pill{display:inline-flex;align-items:center;gap:6px;background:var(--tag);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;transition:all .15s}
+  .model-pill:hover{border-color:var(--accent)}
+  .model-pill.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .model-pill .arrow{color:var(--muted);font-size:11px}
+  .model-pill.selected .arrow{color:rgba(255,255,255,.7)}
   .form-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
   .form-field{flex:1;min-width:220px}
   .form-field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
@@ -38,6 +53,11 @@
   .form-field textarea{resize:vertical;min-height:60px;font-family:"SF Mono",Consolas,monospace;font-size:13px}
   .form-field .hint{font-size:12px;color:var(--muted);margin-top:4px}
   .field-hidden{display:none}
+  .divider{height:1px;background:var(--border);margin:20px 0}
+  .url-preview{font-size:12px;color:var(--accent);background:var(--accent-light);padding:6px 10px;border-radius:6px;margin-top:6px;word-break:break-all;font-family:"SF Mono",Consolas,monospace}
+  .mode-toggle{display:flex;gap:4px;background:var(--accent-light);border-radius:8px;padding:3px}
+  .mode-btn{padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);border-radius:6px;transition:all .15s}
+  .mode-btn.active{background:var(--accent);color:#fff}
   .lang-tabs{display:flex;margin-bottom:0}
   .lang-tab{padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;background:var(--panel);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;color:var(--muted);transition:all .15s}
   .lang-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -50,16 +70,6 @@
   .copy-btn.done{background:var(--green);border-color:var(--green);color:#fff}
   pre{background:var(--code-bg);color:var(--code-fg);padding:16px 18px;border-radius:0 0 10px 10px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:"SF Mono","Cascadia Code",Consolas,monospace;max-height:560px;overflow-y:auto;border:1px solid var(--code-border);white-space:pre-wrap;word-break:break-all}
   .tip{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 14px;border-radius:6px;font-size:13.5px;margin:12px 0}
-  .section-title{font-size:18px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-  .section-title .icon{font-size:20px}
-  .section-desc{color:var(--muted);font-size:14px;margin-bottom:18px}
-  .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--tag);color:var(--tag-fg)}
-  .badge.async{background:var(--amber-bg);color:var(--amber)}
-  .divider{height:1px;background:var(--border);margin:20px 0}
-  .url-preview{font-size:12px;color:var(--accent);background:var(--accent-light);padding:6px 10px;border-radius:6px;margin-top:6px;word-break:break-all;font-family:"SF Mono",Consolas,monospace}
-  .mode-toggle{display:flex;gap:4px;background:var(--accent-light);border-radius:8px;padding:3px}
-  .mode-btn{padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);border-radius:6px;transition:all .15s}
-  .mode-btn.active{background:var(--accent);color:#fff}
   @media(max-width:820px){nav.sidebar{display:none}main{padding:24px 16px 60px}}
 </style>
 </head>
@@ -67,38 +77,51 @@
 <div class="wrap">
   <nav class="sidebar">
     <div class="brand"><span class="dot"></span>API 代码生成器</div>
-    <div class="nav-group-title">测试目的</div>
-    <a data-type="text2image" class="active"><span class="num">1</span><span class="label-wrap">文生图<span class="sub">Doubao-Seedream</span></span></a>
-    <a data-type="image2image"><span class="num">2</span><span class="label-wrap">图生图<span class="sub">Gemini-Image</span></span></a>
-    <a data-type="image-edit"><span class="num">3</span><span class="label-wrap">图像编辑<span class="sub">Wan2.7-Image</span></span></a>
-    <a data-type="gpt-image"><span class="num">4</span><span class="label-wrap">gpt-image<span class="sub">生成 / 编辑</span></span></a>
-    <a data-type="video-gen"><span class="num">5</span><span class="label-wrap">视频生成<span class="sub">Seedance · 异步</span></span></a>
-    <a data-type="video-img"><span class="num">6</span><span class="label-wrap">图生视频<span class="sub">Seedance · 异步</span></span></a>
+    <div class="nav-group-title">模型调用（按厂商）</div>
+    <a data-type="s1" class="active"><span class="num">1</span><span class="label-wrap">Doubao-Seedream<span class="sub">火山引擎 · 文生图</span></span></a>
+    <a data-type="s2"><span class="num">2</span><span class="label-wrap">Gemini-Image-vt<span class="sub">Google · Vertex 路线</span></span></a>
+    <a data-type="s3"><span class="num">3</span><span class="label-wrap">Gemini-Image<span class="sub">Google · AI Studio 路线</span></span></a>
+    <a data-type="s4"><span class="num">4</span><span class="label-wrap">Wan2.7-Image<span class="sub">阿里云 · 图像编辑</span></span></a>
+    <a data-type="s5"><span class="num">5</span><span class="label-wrap">Vidu<span class="sub">生数科技 · 视频生成</span></span></a>
+    <a data-type="s6"><span class="num">6</span><span class="label-wrap">gpt-image<span class="sub">OpenAI · 生成/编辑</span></span></a>
+    <a data-type="s7"><span class="num">7</span><span class="label-wrap">Seedance 2.0<span class="sub">火山引擎 · 视频生成</span></span></a>
   </nav>
+
   <main>
     <header class="top">
       <h1>🧪 API 测试代码生成器</h1>
-      <p>粘贴平台网址 → 替换 API Key → 生成可直接运行的 CMD 命令</p>
+      <p>选择厂商和模型 -> 填写域名和 API Key -> 生成可直接运行的测试代码</p>
     </header>
+
     <div class="form-card">
-      <div class="section-title"><span class="icon" id="typeIcon">🎨</span> <span id="typeTitle">文生图</span> <span class="badge" id="typeBadge">Doubao-Seedream</span></div>
-      <div class="section-desc" id="typeDesc">火山透传接口，根据文字描述生成图片。</div>
+      <div class="section-title"><span class="icon" id="typeIcon">🎨</span> <span id="typeTitle">Doubao-Seedream</span> <span class="badge" id="typeBadge">文生图</span></div>
+      <div class="section-desc" id="typeDesc"></div>
+
+      <!-- Vendor info card -->
+      <div class="vendor-card" id="vendorCard">
+        <div class="v-row"><b>厂商</b><span id="vendorName"></span></div>
+        <div class="v-row"><b>可用模型</b><div class="model-pills" id="modelPills"></div></div>
+        <div class="v-row"><b>Base URL</b><code id="refUrl"></code></div>
+        <div class="v-row"><b>官方文档</b><a id="docLink" target="_blank" rel="noopener"></a></div>
+      </div>
+
       <div class="form-row">
         <div class="form-field">
-          <label>平台网址（粘贴你的平台任意网址，仅用于提取域名）<span class="req">*</span></label>
-          <input type="text" id="baseUrl" value="https://model.sidus-ai.com" placeholder="粘贴你的平台任意网址">
+          <label>平台网址（粘贴你的平台任意网址，自动提取域名）<span class="req">*</span></label>
+          <input type="text" id="baseUrl" value="https://www.sophnet.com" placeholder="粘贴你的平台网址">
           <div class="hint" id="refUrlHint"></div>
         </div>
         <div class="form-field">
-          <label>你的平台域名（自动提取，可手动修改）<span class="req">*</span></label>
-          <input type="text" id="newDomain" value="model.sidus-ai.com" placeholder="如 model.sidus-ai.com">
-          <div class="hint">从平台网址自动提取，识别失败时可手动修改</div>
+          <label>你的平台域名（自动提取，可修改）<span class="req">*</span></label>
+          <input type="text" id="newDomain" value="www.sophnet.com" placeholder="如 model.sidus-ai.com">
+          <div class="hint">从平台网址自动提取域名</div>
         </div>
         <div class="form-field">
           <label>API Key<span class="req">*</span></label>
           <input type="text" id="apiKey" value="$API_KEY" placeholder="sk-xxxx">
         </div>
       </div>
+
       <div class="form-row">
         <div class="form-field" id="imageField" style="display:none">
           <label>输入图片 URL</label>
@@ -107,57 +130,25 @@
         </div>
         <div class="form-field field-hidden" id="videoParams" style="flex:1 1 100%">
           <div class="form-row" style="margin-bottom:0">
-            <div class="form-field" style="min-width:120px;flex:0 0 auto">
-              <label>视频时长（秒）</label>
-              <input type="text" id="duration" value="5" placeholder="如 5" style="width:80px">
-            </div>
-            <div class="form-field" style="min-width:140px;flex:0 0 auto">
-              <label>分辨率</label>
-              <select id="resolution">
-                <option value="480p">480p</option>
-                <option value="720p" selected>720p</option>
-                <option value="1080p">1080p</option>
-                <option value="4K">4K</option>
-                <option value="2K">2K</option>
-              </select>
-            </div>
-            <div class="form-field" style="min-width:120px;flex:0 0 auto">
-              <label>宽高比</label>
-              <select id="ratio">
-                <option value="16:9" selected>16:9（横屏）</option>
-                <option value="9:16">9:16（竖屏）</option>
-                <option value="1:1">1:1（正方）</option>
-                <option value="4:3">4:3</option>
-              </select>
-            </div>
-            <div class="form-field" style="min-width:140px;flex:0 0 auto">
-              <label>水印</label>
-              <select id="watermarkType" onchange="generateCode()">
-                <option value="none" selected>无水印 (false)</option>
-                <option value="custom">有水印 (true)</option>
-              </select>
-            </div>
-            <div class="form-field" style="min-width:120px;flex:0 0 auto">
-              <label>生成音频</label>
-              <select id="genAudio">
-                <option value="true" selected>是</option>
-                <option value="false">否</option>
-              </select>
-            </div>
+            <div class="form-field" style="min-width:120px;flex:0 0 auto"><label>视频时长（秒）</label><input type="text" id="duration" value="5" style="width:80px"></div>
+            <div class="form-field" style="min-width:140px;flex:0 0 auto"><label>分辨率</label><select id="resolution"><option value="480p">480p</option><option value="720p" selected>720p</option><option value="1080p">1080p</option><option value="2K">2K</option><option value="4K">4K</option></select></div>
+            <div class="form-field" style="min-width:120px;flex:0 0 auto"><label>宽高比</label><select id="ratio"><option value="16:9" selected>16:9</option><option value="9:16">9:16</option><option value="1:1">1:1</option><option value="4:3">4:3</option></select></div>
+            <div class="form-field" style="min-width:100px;flex:0 0 auto"><label>水印</label><select id="watermarkType"><option value="none" selected>false</option><option value="custom">true</option></select></div>
+            <div class="form-field" style="min-width:100px;flex:0 0 auto"><label>生成音频</label><select id="genAudio"><option value="true" selected>是</option><option value="false">否</option></select></div>
           </div>
         </div>
       </div>
+
       <div class="form-row" id="commonParams" style="margin-bottom:12px">
         <div class="form-field" style="flex:0 0 auto;min-width:160px">
           <label>联网搜索</label>
-          <select id="webSearch">
-            <option value="false" selected>不启用</option>
-            <option value="true">启用</option>
-          </select>
-          <div class="hint">生图/生视频时可开启联网搜索</div>
+          <select id="webSearch"><option value="false" selected>不启用</option><option value="true">启用</option></select>
+          <div class="hint">生图/生视频时可开启</div>
         </div>
       </div>
+
       <div class="divider"></div>
+
       <div class="form-row" style="align-items:flex-end">
         <div class="form-field" style="flex:0 0 auto;min-width:200px">
           <label>生成代码格式</label>
@@ -168,6 +159,7 @@
         </div>
       </div>
     </div>
+
     <div class="code-section">
       <div class="code-wrap">
         <div class="code-header">
@@ -177,14 +169,9 @@
         <pre id="codeOutput"></pre>
       </div>
     </div>
-    <div id="asyncTip" class="tip" style="display:none">
-      ⚠️ 视频生成为异步任务：① 提交任务获取 task_id → ② 轮询查询结果。
-      <div style="margin-top:10px;">
-        <label style="font-size:13px;font-weight:600;color:var(--muted);">填写第①步返回的 task_id：</label>
-        <input type="text" id="taskIdInput" placeholder="粘贴第一步返回的 task_id" style="width:100%;padding:8px 12px;font-size:14px;border:1.5px solid var(--input-border);border-radius:8px;margin-top:4px;background:var(--input-bg);color:var(--text);" oninput="generateCode()">
-        <div style="font-size:12px;color:var(--muted);margin-top:4px;">填入后第二步轮询代码会自动替换为真实 ID</div>
-      </div>
-    </div>
+
+    <div id="asyncTip" class="tip" style="display:none">⚠️ 视频生成为异步任务：① 提交任务获取 task_id -> ② 轮询查询结果。</div>
+
     <div class="code-section" id="pollSection" style="display:none">
       <div class="code-wrap">
         <div class="code-header">
@@ -196,58 +183,121 @@
     </div>
   </main>
 </div>
+
 <script>
-// 完全照搬参考文档的 curl 命令模板，只替换域名和 API Key
+// 7 大模型类别，与参考文档完全一致
 const TEMPLATES = {
-  text2image: {
-    icon:'🎨',title:'文生图',badge:'Doubao-Seedream',
-    desc:'火山透传接口，根据文字描述生成图片。',
-    showImage:false,showDuration:false,isAsync:false,
-    // 参考文档原文 curl 命令（www.sophnet.com 域名）
+  s1: {
+    icon:'🎨', title:'Doubao-Seedream', badge:'文生图',
+    vendor:'火山引擎（字节跳动）',
+    desc:'火山透传接口，支持文生图和图生图。model 名称及参数完全参考火山引擎官方文档。',
     refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/imagegenerator',
+    docUrl:'https://docs.volcengine.com/docs/82379/1541523?lang=zh',
+    docName:'火山引擎 · Seedream 文档',
+    models:[
+      {name:'Doubao-Seedream-5.0-Lite', code:'doubao-seedream-5-0-260128'},
+      {name:'Doubao-Seedream-4.5', code:'doubao-seedream-4-5-251128'},
+      {name:'Doubao-Seedream-4.0', code:'doubao-seedream-4-0-250828'},
+    ],
+    showImage:false, showDuration:false, isAsync:false,
     body:'{"model":"doubao-seedream-5-0-260128","prompt":"充满活力的特写编辑肖像，模特眼神犀利，头戴雕塑感帽子，色彩拼接丰富，眼部焦点锐利，景深较浅，具有Vogue杂志封面的美学风格，采用中画幅拍摄，工作室灯光效果强烈。","size":"2K","watermark":false}',
   },
-  image2image: {
-    icon:'🖼️',title:'图生图',badge:'Gemini-Image',
-    desc:'Gemini AI Studio 路线，输入图片+指令生成新图。',
-    showImage:true,showDuration:false,isAsync:false,
-    refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/imagegenerator/google/models/Gemini-2.5-Flash-Image:generateContent',
-    body:'{"contents":[{"role":"USER","parts":[{"text":"给图中人物头上戴一朵小红花"},{"fileData":{"mimeType":"image/jpg","fileUri":"https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_5_imageToimage.png"}}]}],"generationConfig":{"imageConfig":{"aspectRatio":"16:9"},"responseModalities":["IMAGE"]}}',
+  s2: {
+    icon:'🌐', title:'Gemini-Image-vt', badge:'Vertex 路线',
+    vendor:'Google（Vertex AI）',
+    desc:'走 Google Vertex 接口风格，endpoint 中的 {model} 直接替换为模型名。',
+    refUrl:'https://www.sophnet.com/api/gemini/v1beta/models/gemini-2.5-flash-image-vt:generateContent',
+    docUrl:'https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/gemini-edit-images?hl=zh-cn',
+    docName:'Vertex AI · Gemini 图像编辑',
+    models:[
+      {name:'gemini-2.5-flash-image-vt', code:'gemini-2.5-flash-image-vt'},
+      {name:'gemini-3-pro-image-preview-vt', code:'gemini-3-pro-image-preview-vt'},
+      {name:'gemini-3.1-flash-image-preview-vt', code:'gemini-3.1-flash-image-preview-vt'},
+    ],
+    showImage:false, showDuration:false, isAsync:false,
+    body:'{"contents":[{"parts":[{"text":"一只猫"}]}]}',
   },
-  'image-edit': {
-    icon:'✏️',title:'图像编辑',badge:'Wan2.7-Image',
-    desc:'阿里通义万相图像编辑接口。',
-    showImage:true,showDuration:false,isAsync:false,
+  s3: {
+    icon:'🖼️', title:'Gemini-Image', badge:'AI Studio 路线',
+    vendor:'Google（AI Studio）',
+    desc:'走 Google AI Studio 接口风格，endpoint 路径中直接内嵌 {model}。',
+    refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/imagegenerator/google/models/Gemini-2.5-Flash-Image:generateContent',
+    docUrl:'https://ai.google.dev/gemini-api/docs/image-generation?hl=zh-cn',
+    docName:'Gemini API · 图像生成',
+    models:[
+      {name:'Gemini-3.1-Flash-Image-Preview', code:'Gemini-3.1-Flash-Image-Preview'},
+      {name:'Gemini-2.5-Flash-Image', code:'Gemini-2.5-Flash-Image'},
+      {name:'Gemini-3-Pro-Image-Preview', code:'Gemini-3-Pro-Image-Preview'},
+    ],
+    showImage:false, showDuration:false, isAsync:false,
+    body:'{"contents":[{"parts":[{"text":"一只猫"}]}]}',
+  },
+  s4: {
+    icon:'✏️', title:'Wan2.7-Image', badge:'图像编辑',
+    vendor:'阿里云（百炼 Model Studio）',
+    desc:'阿里通义万相图像编辑接口，输入图片 URL + 编辑指令，参数放在 parameters 中。',
     refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/image-edit',
+    docUrl:'https://help.aliyun.com/zh/model-studio/z-image-api-reference',
+    docName:'阿里云百炼 · 图像 API',
+    models:[
+      {name:'Wan2.7-Image', code:'Wan2.7-Image'},
+      {name:'Wan2.7-Image-Pro', code:'Wan2.7-Image-Pro'},
+    ],
+    showImage:true, showDuration:false, isAsync:false,
     body:'{"model":"Wan2.7-Image","input":{"messages":[{"role":"user","content":[{"image":"https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20260310/jiydyi/image+(18)-2026-03-10-16-39-59.webp"},{"text":"在画面右下角石板路旁、靠近树干根部的位置，以浅灰墨色手写体题写一首七言绝句"}]}]},"parameters":{"n":1,"negative_prompt":" ","prompt_extend":true,"watermark":false,"size":"2048*2048"}}',
   },
-  'gpt-image': {
-    icon:'🖥️',title:'gpt-image',badge:'生成 / 编辑',
-    desc:'OpenAI 风格图像接口。',
-    showImage:false,showDuration:false,isAsync:false,
+  s5: {
+    icon:'🎬', title:'Vidu', badge:'视频生成 · 异步', badgeAsync:true,
+    vendor:'生数科技（Vidu）',
+    desc:'视频生成为异步任务：先调用生成接口拿到 task_id，再用任务查询接口轮询获取结果。',
+    refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/videogenerator/vidu/ent/v2/text2video',
+    docUrl:'https://platform.vidu.cn/docs/text-to-video',
+    docName:'Vidu 平台文档',
+    models:[
+      {name:'viduq3', code:'viduq3'},
+      {name:'viduq3-mix', code:'viduq3-mix'},
+      {name:'viduq3-pro-fast', code:'viduq3-pro-fast'},
+    ],
+    showImage:false, showDuration:true, isAsync:true,
+    body:'{"model":"viduq3","prompt":"一只金毛犬在夕阳下的麦田里奔跑，跟拍镜头，电影质感","duration":5,"audio":true}',
+    pollUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/videogenerator/vidu/ent/v2/tasks',
+    pollSuffix:'/creations',
+  },
+  s6: {
+    icon:'🖥️', title:'gpt-image', badge:'生成 / 编辑',
+    vendor:'OpenAI（Azure OpenAI 风格）',
+    desc:'OpenAI 风格图像接口。生成用 JSON（generations）；编辑上传图片用 multipart 表单（edits）。',
     refUrl:'https://www.sophnet.com/api/open-apis/projects/v1/images/generations',
+    docUrl:'https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/dall-e',
+    docName:'Azure OpenAI · 图像 API',
+    models:[
+      {name:'gpt-image-1.5', code:'gpt-image-1.5'},
+      {name:'gpt-image-2', code:'gpt-image-2'},
+    ],
+    showImage:false, showDuration:false, isAsync:false,
     body:'{"prompt":"A photograph of a red fox in an autumn forest","size":"1024x1024","quality":"medium","n":1,"model":"gpt-image-2"}',
   },
-  'video-gen': {
-    icon:'🎬',title:'视频生成',badge:'Seedance · 异步',badgeAsync:true,
-    desc:'豆包 Seedance 视频生成，文生视频(T2V)。异步任务：提交后轮询。',
-    showImage:false,showDuration:true,isAsync:true,
+  s7: {
+    icon:'🎥', title:'Seedance 2.0', badge:'视频生成 · 异步', badgeAsync:true,
+    vendor:'火山引擎（豆包 Seedance）',
+    desc:'豆包 Seedance 2.0 视频生成，支持文生视频（T2V）与图生视频（I2V）。异步任务：提交后拿到 task id，再用查询接口获取结果。',
     refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/videogenerator/volces/tasks',
+    docUrl:'https://docs.volcengine.com/docs/82379/1520757?lang=zh',
+    docName:'火山引擎 · 视频生成 API',
+    models:[
+      {name:'sophvideo-2.0', code:'sophvideo-2.0', alias:'doubao-seedance-2-0-260128'},
+      {name:'sophvideo-2.0-fast', code:'sophvideo-2.0-fast', alias:'doubao-seedance-2-0-fast-260128'},
+    ],
+    showImage:false, showDuration:true, isAsync:true,
     body:'{"model":"sophvideo-2.0","content":[{"type":"text","text":"一只金毛犬在夕阳下的麦田里奔跑，跟拍镜头，电影质感"}],"resolution":"720p","ratio":"16:9","duration":5,"watermark":false}',
     pollUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/videogenerator/volces/tasks',
-  },
-  'video-img': {
-    icon:'🎥',title:'图生视频',badge:'Seedance · 异步',badgeAsync:true,
-    desc:'豆包 Seedance 图生视频(I2V)。异步任务：提交后轮询。',
-    showImage:true,showDuration:true,isAsync:true,
-    refUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/videogenerator/volces/tasks',
-    body:'{"model":"sophvideo-2.0","content":[{"type":"text","text":"慢慢走来"},{"type":"image_url","image_url":{"url":"https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625"},"role":"reference_image"}],"generate_audio":true,"ratio":"16:9","duration":5,"watermark":false}',
-    pollUrl:'https://www.sophnet.com/api/open-apis/projects/easyllms/videogenerator/volces/tasks',
+    pollSuffix:'',
   },
 };
 
-let currentType='text2image';
+let currentType='s1';
 let currentMode='curl';
+let selectedModel={}; // type -> model code
 
 function switchType(type){
   currentType=type;
@@ -258,12 +308,34 @@ function switchType(type){
   const badge=document.getElementById('typeBadge');
   badge.textContent=t.badge;badge.className='badge'+(t.badgeAsync?' async':'');
   document.getElementById('typeDesc').textContent=t.desc;
+  // Vendor card
+  document.getElementById('vendorName').textContent=t.vendor;
+  document.getElementById('refUrl').textContent=t.refUrl;
+  document.getElementById('refUrlHint').textContent='参考文档 URL: '+t.refUrl;
+  const docLink=document.getElementById('docLink');
+  docLink.href=t.docUrl;docLink.textContent=t.docName+' ↗';
+  // Model pills
+  const pills=document.getElementById('modelPills');
+  pills.innerHTML='';
+  if(!selectedModel[type]) selectedModel[type]=t.models[0].code;
+  t.models.forEach(m=>{
+    const pill=document.createElement('span');
+    pill.className='model-pill'+(selectedModel[type]===m.code?' selected':'');
+    pill.innerHTML=m.name+(m.alias?' <span class="arrow">→ '+m.alias+'</span>':'');
+    pill.onclick=()=>{
+      selectedModel[type]=m.code;
+      switchType(type); // refresh
+      generateCode();
+    };
+    pills.appendChild(pill);
+  });
+  // Fields
   document.getElementById('imageField').style.display=t.showImage?'':'none';
   document.getElementById('videoParams').classList.toggle('field-hidden',!t.showDuration);
-  // 显示参考文档原始 URL 作为提示
-  document.getElementById('refUrlHint').textContent='参考文档 URL: ' + t.refUrl;
   document.getElementById('asyncTip').style.display=t.isAsync?'':'none';
   document.getElementById('pollSection').style.display=t.isAsync?'':'none';
+  // Update body with selected model
+  document.getElementById('baseUrl').value=t.refUrl;
   generateCode();
 }
 
@@ -275,18 +347,26 @@ function switchMode(mode){
   generateCode();
 }
 
+function extractDomain(input){
+  input=input.trim();if(!input)return'';
+  if(!input.startsWith('http://')&&!input.startsWith('https://'))input='https://'+input;
+  try{const u=new URL(input);return u.hostname}catch(e){return input}
+}
+
 function getFinalUrl(){
   const t=TEMPLATES[currentType];
   const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  // 始终用参考文档的 URL 模板，只替换域名 www.sophnet.com -> 用户域名
-  return t.refUrl.replace(/www\.sophnet\.com/g,newDomain);
+  let url=t.refUrl;
+  // Replace model placeholder if needed
+  if(url.includes('{model}')){url=url.replace('{model}',selectedModel[currentType]||t.models[0].code)}
+  return url.replace(/www\.sophnet\.com/g,newDomain);
 }
 
 function getPollUrl(){
   const t=TEMPLATES[currentType];
-  const refUrl=t.pollUrl||t.refUrl;
   const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  return refUrl.replace(/www\.sophnet\.com/g,newDomain);
+  let url=t.pollUrl||t.refUrl;
+  return url.replace(/www\.sophnet\.com/g,newDomain);
 }
 
 function generateCode(){
@@ -295,117 +375,104 @@ function generateCode(){
   const apiKey=document.getElementById('apiKey').value.trim();
   const webSearch=document.getElementById('webSearch').value==='true';
   let body=t.body;
-  if(t.isAsync && t.showDuration){
-    const duration=document.getElementById('duration').value.trim()||'5';
-    const resolution=document.getElementById('resolution').value;
-    const ratio=document.getElementById('ratio').value;
-    const genAudio=document.getElementById('genAudio').value==='true';
-    const model='sophvideo-2.0';
-    const prompt=t.body.match(/"text":"([^"]+)"/);
-    const promptText=prompt ? prompt[1] : '';
-    var wmType=document.getElementById('watermarkType').value;
-    var wmFinal=wmType==='custom'?true:false;
-    if(currentType==='video-gen'){
-      var vd={model:model,content:[{type:'text',text:promptText}],resolution:resolution,ratio:ratio,duration:parseInt(duration)};
-      if(wmFinal!==false) vd.watermark=wmFinal; else vd.watermark=false;
-      if(webSearch) vd.web_search=true;
-      body=JSON.stringify(vd);
-    } else if(currentType==='video-img'){
-      const img=document.getElementById('imageUrl').value.trim()||'https://img0.baidu.com/it/u=4243631493,3921867977&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=625';
-      var vi={model:model,content:[{type:'text',text:promptText},{type:'image_url',image_url:{url:img},role:'reference_image'}],generate_audio:genAudio,ratio:ratio,duration:parseInt(duration)};
-      if(wmFinal!==false) vi.watermark=wmFinal; else vi.watermark=false;
-      if(webSearch) vi.web_search=true;
-      body=JSON.stringify(vi);
+
+  // Replace model in body
+  try{
+    var parsed=JSON.parse(body);
+    if(parsed.model) parsed.model=selectedModel[currentType]||t.models[0].code;
+    // Video params
+    if(t.showDuration&&t.isAsync){
+      const duration=document.getElementById('duration').value.trim()||'5';
+      const resolution=document.getElementById('resolution').value;
+      const ratio=document.getElementById('ratio').value;
+      const wmType=document.getElementById('watermarkType').value;
+      const wmFinal=wmType==='custom'?true:false;
+      const genAudio=document.getElementById('genAudio').value==='true';
+      if(currentType==='s7'){
+        parsed.resolution=resolution;parsed.ratio=ratio;parsed.duration=parseInt(duration);parsed.watermark=wmFinal;
+        if(genAudio) parsed.generate_audio=genAudio;
+      } else if(currentType==='s5'){
+        parsed.duration=parseInt(duration);if(genAudio) parsed.audio=genAudio;
+      }
     }
-  } else {
-    // For non-video types, only modify body when user sets non-default values
-    try {
-      var parsed=JSON.parse(body);
-      var wmType2=document.getElementById('watermarkType').value;
-      if(wmType2==='custom'){ parsed.watermark=true; }
-      if(webSearch) parsed.web_search=true;
-      body=JSON.stringify(parsed);
-    } catch(e) {}
-  }
+    // Watermark for non-video types
+    if(!t.isAsync){
+      var wmType2=document.getElementById('watermarkType')?document.getElementById('watermarkType').value:'none';
+      if(wmType2==='custom'&&'watermark'in parsed) parsed.watermark=true;
+    }
+    // Web search
+    if(webSearch) parsed.web_search=true;
+    body=JSON.stringify(parsed);
+  }catch(e){}
 
   if(currentMode==='curl'){
-    // CMD 单行: curl.exe "URL" -H "..." -H "..." -d "{\"key\":\"value\"}"
     const winBody=body.replace(/"/g,'\\"');
-    const code='curl.exe "'+url+'" -H "Content-Type: application/json" -H "Authorization: Bearer '+apiKey+'" -d "'+winBody+'"';
-    document.getElementById('codeOutput').textContent=code;
-
+    document.getElementById('codeOutput').textContent='curl.exe "'+url+'" -H "Content-Type: application/json" -H "Authorization: Bearer '+apiKey+'" -d "'+winBody+'"';
     if(t.isAsync){
       const pollUrl=getPollUrl();
-      const taskId=document.getElementById('taskIdInput').value.trim()||'替换为实际task_id';
-      document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/'+taskId+'" -H "Authorization: Bearer '+apiKey+'"';
+      const pollSuffix=t.pollSuffix||'';
+      document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/替换为实际task_id'+pollSuffix+'" -H "Authorization: Bearer '+apiKey+'"';
     }
   } else {
-    // Python: dict + json.dumps to avoid JSON format errors
-    var parsed; try{parsed=JSON.parse(body)}catch(e){parsed={}}
-    var dl=[]; for(var k in parsed){var v=parsed[k]; var vs; if(v===true)vs="True"; else if(v===false)vs="False"; else if(typeof v==="number")vs=String(v); else if(typeof v==="object")vs=JSON.stringify(v); else vs="\""+String(v).replace(/\"/g,"\\\"")+"\""; dl.push("    \""+k+"\": "+vs)}
-    var dictStr="{\n"+dl.join(",\n")+"\n}";
-    const code=[
+    // Python: dict + json.dumps
+    var p2;try{p2=JSON.parse(body)}catch(e){p2={}}
+    var dl=[];
+    for(var k in p2){
+      var v=p2[k];var vs;
+      if(v===true)vs='True';else if(v===false)vs='False';
+      else if(typeof v==='number')vs=String(v);
+      else if(typeof v==='object')vs=JSON.stringify(v);
+      else vs='"'+String(v).replace(/"/g,'\\"')+'"';
+      dl.push('    "'+k+'": '+vs);
+    }
+    var dictStr='{\n'+dl.join(',\n')+'\n}';
+    var py=[
       'import urllib.request, urllib.error, json','',
       'API_KEY = "'+apiKey+'"',
-      'URL = "'+url+'"',
-      "body = " + dictStr,'',
-      'req = urllib.request.Request(',
-      '    URL,',
-      '    data=json.dumps(body, ensure_ascii=False).encode("utf-8"),',
-      '    headers={',
-      '        "Authorization": "Bearer " + API_KEY,',
-      '        "Content-Type": "application/json",',
-      '    },',
-      '    method="POST"',
-      ')',
+      'URL = "'+url+'"','',
+      'body = '+dictStr,'',
+      'data = json.dumps(body, ensure_ascii=False).encode("utf-8")','',
+      'req = urllib.request.Request(URL, data=data, headers={',
+      '    "Authorization": "Bearer " + API_KEY,',
+      '    "Content-Type": "application/json",',
+      '}, method="POST")','',
       'try:',
       '    with urllib.request.urlopen(req, timeout=120) as resp:',
       '        status = resp.status',
-      '        data = json.loads(resp.read().decode("utf-8"))',
+      '        result = json.loads(resp.read().decode("utf-8"))',
       '        print(f"HTTP {status}")',
       '        if status in (200, 201):',
       '            print("✅ 成功")',
-      '            print(json.dumps(data, indent=2, ensure_ascii=False))',
       '        else:',
       '            print("❌ 失败")',
-      '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+      '        print(json.dumps(result, indent=2, ensure_ascii=False))',
       'except urllib.error.HTTPError as e:',
       '    print(f"❌ HTTP {e.code}")',
       '    print(e.read().decode("utf-8"))',
       'except Exception as e:',
       '    print(f"❌ 异常: {e}")',
-    ].join('\n');
-    document.getElementById('codeOutput').textContent=code;
+    ];
+    document.getElementById('codeOutput').textContent=py.join('\n');
 
     if(t.isAsync){
       const pollUrl=getPollUrl();
-      const taskId=document.getElementById('taskIdInput').value.trim()||'替换为实际task_id';
+      const pollSuffix=t.pollSuffix||'';
       document.getElementById('pollCode').textContent=[
         'import urllib.request, urllib.error, json, time','',
         'API_KEY = "'+apiKey+'"',
-        'URL = "'+pollUrl+'/'+taskId+'"','',
+        'URL = "'+pollUrl+'/替换为实际task_id'+pollSuffix+'"','',
         'while True:',
         '    try:',
-        '        req = urllib.request.Request(',
-        '            URL,',
-        '            headers={"Authorization": "Bearer " + API_KEY},',
-        '            method="GET"',
-        '        )',
+        '        req = urllib.request.Request(URL, headers={"Authorization": "Bearer " + API_KEY}, method="GET")',
         '        with urllib.request.urlopen(req, timeout=30) as resp:',
         '            data = json.loads(resp.read().decode("utf-8"))',
-        '            status = data.get("status", "unknown")',
-        '            print(f"状态: {status}")',
-        '            if status in ("succeeded", "SUCCESS", "completed"):',
-        '                print("✅ 完成")',
-        '                print(json.dumps(data, indent=2, ensure_ascii=False))',
-        '                break',
-        '            elif status in ("failed", "ERROR"):',
-        '                print("❌ 失败")',
-        '                break',
-        '            time.sleep(5)',
+        '            print(json.dumps(data, indent=2, ensure_ascii=False))',
+        '            break',
+        '    except urllib.error.HTTPError as e:',
+        '        print(f"HTTP {e.code}: "+e.read().decode("utf-8"))',
+        '        break',
         '    except Exception as e:',
-        '        print(f"异常: {e}")',
-        '        time.sleep(5)',
+        '        print(f"异常: {e}"); time.sleep(5)',
       ].join('\n');
     }
   }
@@ -414,42 +481,27 @@ function generateCode(){
 function copyCode(btn){
   const pre=btn.closest('.code-wrap').querySelector('pre');
   navigator.clipboard.writeText(pre.innerText).then(()=>{
-    const old=btn.textContent;
-    btn.textContent='✓ 已复制';btn.classList.add('done');
+    const old=btn.textContent;btn.textContent='✓ 已复制';btn.classList.add('done');
     setTimeout(()=>{btn.textContent=old;btn.classList.remove('done')},1600);
   });
 }
 
 // Event listeners
 document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>switchType(a.dataset.type)));
-
-// Auto-extract domain from baseUrl
 function autoExtractDomain(){
   const url=document.getElementById('baseUrl').value.trim();
-  if(!url) return;
-  let u=url;
-  if(!u.startsWith('http://')&&!u.startsWith('https://')) u='https://'+u;
-  try{
-    const parsed=new URL(u);
-    const domain=parsed.hostname;
-    // Only update if user hasn't manually edited, or always update (allowing override)
-    document.getElementById('newDomain').value=domain;
-    generateCode();
-  }catch(e){
-    // URL not complete yet, don't update
-  }
+  if(!url)return;
+  let u=url;if(!u.startsWith('http://')&&!u.startsWith('https://'))u='https://'+u;
+  try{document.getElementById('newDomain').value=new URL(u).hostname;generateCode()}catch(e){}
 }
-
 ['baseUrl','newDomain','apiKey','imageUrl','duration','resolution','ratio','watermarkType','genAudio','webSearch'].forEach(id=>{
   const el=document.getElementById(id);
   if(el){el.addEventListener('input',generateCode);el.addEventListener('change',generateCode)}
 });
-
-// Add auto-extract listener on baseUrl
 document.getElementById('baseUrl').addEventListener('input',autoExtractDomain);
 document.getElementById('baseUrl').addEventListener('paste',function(){setTimeout(autoExtractDomain,0)});
 
-switchType('text2image');
+switchType('s1');
 </script>
 </body>
 </html>

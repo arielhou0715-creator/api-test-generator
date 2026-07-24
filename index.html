@@ -414,6 +414,27 @@ function switchMode(mode){
 }
 
 // ====== Custom curl parser ======
+// ====== JS object -> Python dict string (recursive) ======
+function jsToPyDict(obj, indent){
+  indent=indent||0;
+  var pad='    '.repeat(indent), pad2='    '.repeat(indent+1);
+  if(obj===null)return 'None';
+  if(obj===true)return 'True';
+  if(obj===false)return 'False';
+  if(typeof obj==='number')return String(obj);
+  if(typeof obj==='string')return '"'+obj.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"';
+  if(Array.isArray(obj)){
+    if(obj.length===0)return '[]';
+    return '[\n'+obj.map(function(i){return pad2+jsToPyDict(i,indent+1)}).join(',\n')+'\n'+pad+']';
+  }
+  if(typeof obj==='object'){
+    var keys=Object.keys(obj);
+    if(keys.length===0)return '{}';
+    return '{\n'+keys.map(function(k){return pad2+'"'+k+'": '+jsToPyDict(obj[k],indent+1)}).join(',\n')+'\n'+pad+'}';
+  }
+  return String(obj);
+}
+
 function parseCurlExample(input){
   if(!input||!input.trim())return null;
   // Join multi-line bash continuation (\ at end of line)
@@ -573,11 +594,7 @@ function generateCustomCode(){
       var parsedBody;
       try{
         parsedBody=JSON.parse(p.body);
-        pyLines.push('body = '+JSON.stringify(parsedBody,null,2).replace(/^/gm,'    ').replace(/^\s*$/,'').replace(/^    \{/,'{').replace(/}$/,  '}')
-                   .replace(/\n    \}/,'\n}'));
-        // Simpler approach: just use the JSON string directly
-        pyLines.pop();
-        pyLines.push('body = '+JSON.stringify(parsedBody));
+        pyLines.push('body = '+jsToPyDict(parsedBody));
       }catch(e){
         pyLines.push('body = '+JSON.stringify(p.body));
       }
@@ -651,16 +668,7 @@ function generateCode(){
     }
   } else {
     var p2;try{p2=JSON.parse(body)}catch(e){p2={}}
-    var dl=[];
-    for(var k in p2){
-      var v=p2[k];var vs;
-      if(v===true)vs='True';else if(v===false)vs='False';
-      else if(typeof v==='number')vs=String(v);
-      else if(typeof v==='object')vs=JSON.stringify(v);
-      else vs='"'+String(v).replace(/"/g,'\\"')+'"';
-      dl.push('    "'+k+'": '+vs);
-    }
-    var dictStr='{\n'+dl.join(',\n')+'\n}';
+    var dictStr=jsToPyDict(p2);
     var py=[
       'import urllib.request, urllib.error, json','',
       'API_KEY = "'+apiKey+'"',

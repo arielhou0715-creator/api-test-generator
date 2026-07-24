@@ -34,10 +34,12 @@
   .section-desc{color:var(--muted);font-size:14px;margin-bottom:18px}
   .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--tag);color:var(--tag-fg)}
   .badge.async{background:var(--amber-bg);color:var(--amber)}
+  .badge.custom{background:#fef3c7;color:#92400e}
   .vendor-card{background:var(--accent-light);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px}
   .vendor-card .v-row{font-size:13px;margin:4px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .vendor-card .v-row b{min-width:70px;color:var(--muted);font-weight:600}
   .vendor-card a{color:var(--accent);word-break:break-all}
+  .vendor-card code{font-size:12px;word-break:break-all;color:var(--accent)}
   .model-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
   .model-pill{display:inline-flex;align-items:center;gap:6px;background:var(--tag);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;transition:all .15s}
   .model-pill:hover{border-color:var(--accent)}
@@ -70,6 +72,12 @@
   .copy-btn.done{background:var(--green);border-color:var(--green);color:#fff}
   pre{background:var(--code-bg);color:var(--code-fg);padding:16px 18px;border-radius:0 0 10px 10px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:"SF Mono","Cascadia Code",Consolas,monospace;max-height:560px;overflow-y:auto;border:1px solid var(--code-border);white-space:pre-wrap;word-break:break-all}
   .tip{border-left:3px solid var(--amber);background:var(--amber-bg);padding:10px 14px;border-radius:6px;font-size:13.5px;margin:12px 0}
+  .parsed-info{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px;margin-bottom:16px}
+  .parsed-info .p-row{font-size:13px;margin:6px 0}
+  .parsed-info .p-row b{color:#166534;font-weight:600;min-width:80px;display:inline-block}
+  .parsed-info code{font-size:12px;word-break:break-all;color:#166534}
+  .parse-error{border-color:#fca5a5;background:#fef2f2;color:#991b1b}
+  .custom-textarea{min-height:140px!important;font-family:"SF Mono",Consolas,monospace!important;font-size:12.5px!important;line-height:1.5}
   @media(max-width:820px){nav.sidebar{display:none}main{padding:24px 16px 60px}}
 </style>
 </head>
@@ -85,6 +93,8 @@
     <a data-type="s5"><span class="num">5</span><span class="label-wrap">Vidu<span class="sub">生数科技 · 视频生成</span></span></a>
     <a data-type="s6"><span class="num">6</span><span class="label-wrap">gpt-image<span class="sub">OpenAI · 生成/编辑</span></span></a>
     <a data-type="s7"><span class="num">7</span><span class="label-wrap">Seedance 2.0<span class="sub">火山引擎 · 视频生成</span></span></a>
+    <div class="nav-group-title">自定义</div>
+    <a data-type="custom"><span class="num">★</span><span class="label-wrap">自定义模型<span class="sub">粘贴示例代码自动解析</span></span></a>
   </nav>
 
   <main>
@@ -93,11 +103,59 @@
       <p>选择厂商和模型 -> 填写域名和 API Key -> 生成可直接运行的测试代码</p>
     </header>
 
-    <div class="form-card">
+    <!-- ===== Custom Model Section (hidden by default) ===== -->
+    <div class="form-card" id="customCard" style="display:none">
+      <div class="section-title"><span class="icon">⚡</span> 自定义模型 <span class="badge custom">粘贴即解析</span></div>
+      <div class="section-desc">粘贴任意 curl 示例代码（支持多行 bash 格式），自动解析 URL、Headers、Body，一键生成 CMD curl 和 Python 代码</div>
+
+      <div class="form-row">
+        <div class="form-field" style="flex:1 1 100%">
+          <label>粘贴示例代码（curl 命令，支持多行 bash 格式）<span class="req">*</span></label>
+          <textarea id="customCurlInput" class="custom-textarea" placeholder='示例：
+curl https://api.example.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d "{\"model\":\"gpt-4\",\"messages\":[{\"role\":\"user\",\"content\":\"hello\"}]}"'></textarea>
+          <div class="hint">粘贴后会自动解析 URL / Headers / Body</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>模型名称（可选，用于显示）</label>
+          <input type="text" id="customModelName" placeholder="如 gpt-4o-mini">
+        </div>
+        <div class="form-field">
+          <label>API Key<span class="req">*</span></label>
+          <input type="text" id="customApiKey" value="$API_KEY" placeholder="sk-xxxx">
+        </div>
+        <div class="form-field">
+          <label>替换域名（可选）</label>
+          <input type="text" id="customDomainReplace" placeholder="如 model.sidus-ai.com（留空则不替换）">
+          <div class="hint">将示例中的域名替换为你的平台域名</div>
+        </div>
+      </div>
+
+      <div id="parseResult"></div>
+
+      <div class="divider"></div>
+
+      <div class="form-row" style="align-items:flex-end">
+        <div class="form-field" style="flex:0 0 auto;min-width:200px">
+          <label>生成代码格式</label>
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="customModeCurl" onclick="switchMode('curl')">CMD 单行 curl</button>
+            <button class="mode-btn" id="customModePython" onclick="switchMode('python')">Python</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Standard Model Section ===== -->
+    <div class="form-card" id="standardCard">
       <div class="section-title"><span class="icon" id="typeIcon">🎨</span> <span id="typeTitle">Doubao-Seedream</span> <span class="badge" id="typeBadge">文生图</span></div>
       <div class="section-desc" id="typeDesc"></div>
 
-      <!-- Vendor info card -->
       <div class="vendor-card" id="vendorCard">
         <div class="v-row"><b>厂商</b><span id="vendorName"></span></div>
         <div class="v-row"><b>可用模型</b><div class="model-pills" id="modelPills"></div></div>
@@ -160,7 +218,7 @@
       </div>
     </div>
 
-    <div class="code-section">
+    <div class="code-section" id="codeSection">
       <div class="code-wrap">
         <div class="code-header">
           <span class="title" id="codeTitle">CMD 单行 curl 命令</span>
@@ -298,23 +356,29 @@ const TEMPLATES = {
 let currentType='s1';
 let currentMode='curl';
 let selectedModel={}; // type -> model code
+let customParsed=null; // {url, headers, body, method}
 
 function switchType(type){
   currentType=type;
-  const t=TEMPLATES[type];
+  const isCustom=type==='custom';
   document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.dataset.type===type));
+  document.getElementById('customCard').style.display=isCustom?'':'none';
+  document.getElementById('standardCard').style.display=isCustom?'none':'';
+  document.getElementById('codeSection').style.display=isCustom?'none':'';
+  document.getElementById('asyncTip').style.display='none';
+  document.getElementById('pollSection').style.display='none';
+  if(isCustom){generateCustomCode();return}
+  const t=TEMPLATES[type];
   document.getElementById('typeIcon').textContent=t.icon;
   document.getElementById('typeTitle').textContent=t.title;
   const badge=document.getElementById('typeBadge');
   badge.textContent=t.badge;badge.className='badge'+(t.badgeAsync?' async':'');
   document.getElementById('typeDesc').textContent=t.desc;
-  // Vendor card
   document.getElementById('vendorName').textContent=t.vendor;
   document.getElementById('refUrl').textContent=t.refUrl;
   document.getElementById('refUrlHint').textContent='参考文档 URL: '+t.refUrl;
   const docLink=document.getElementById('docLink');
   docLink.href=t.docUrl;docLink.textContent=t.docName+' ↗';
-  // Model pills
   const pills=document.getElementById('modelPills');
   pills.innerHTML='';
   if(!selectedModel[type]) selectedModel[type]=t.models[0].code;
@@ -324,63 +388,237 @@ function switchType(type){
     pill.innerHTML=m.name+(m.alias?' <span class="arrow">→ '+m.alias+'</span>':'');
     pill.onclick=()=>{
       selectedModel[type]=m.code;
-      switchType(type); // refresh
+      switchType(type);
       generateCode();
     };
     pills.appendChild(pill);
   });
-  // Fields
   document.getElementById('imageField').style.display=t.showImage?'':'none';
   document.getElementById('videoParams').classList.toggle('field-hidden',!t.showDuration);
   document.getElementById('asyncTip').style.display=t.isAsync?'':'none';
   document.getElementById('pollSection').style.display=t.isAsync?'':'none';
-  // Update body with selected model
   document.getElementById('baseUrl').value=t.refUrl;
+  document.getElementById('codeSection').style.display='';
   generateCode();
 }
 
 function switchMode(mode){
   currentMode=mode;
-  document.getElementById('modeCurl').classList.toggle('active',mode==='curl');
-  document.getElementById('modePython').classList.toggle('active',mode==='python');
+  const isCustom=currentType==='custom';
+  const curlBtn=document.getElementById(isCustom?'customModeCurl':'modeCurl');
+  const pyBtn=document.getElementById(isCustom?'customModePython':'modePython');
+  curlBtn.classList.toggle('active',mode==='curl');
+  pyBtn.classList.toggle('active',mode==='python');
   document.getElementById('codeTitle').textContent=mode==='curl'?'CMD 单行 curl 命令':'Python 脚本';
-  generateCode();
+  if(isCustom) generateCustomCode(); else generateCode();
 }
 
-function extractDomain(input){
-  input=input.trim();if(!input)return'';
-  if(!input.startsWith('http://')&&!input.startsWith('https://'))input='https://'+input;
-  try{const u=new URL(input);return u.hostname}catch(e){return input}
+// ====== Custom curl parser ======
+function parseCurlExample(input){
+  if(!input||!input.trim())return null;
+  // Join multi-line bash continuation (\ at end of line)
+  let text=input.replace(/\\\s*\r?\n/g,' ').trim();
+  // Also join regular newlines
+  text=text.replace(/\r?\n/g,' ').trim();
+  // Remove curl prefix
+  text=text.replace(/^curl(?:\.exe)?\s+/i,'');
+
+  // Extract URL: try quoted first, then unquoted
+  let url='';
+  const urlQuoted=text.match(/["'](https?:\/\/[^"'\s]+)["']/);
+  if(urlQuoted){url=urlQuoted[1]}
+  else{
+    const urlUnquoted=text.match(/(?:^|\s)(https?:\/\/[^\s'"\\]+)/);
+    if(urlUnquoted)url=urlUnquoted[1];
+  }
+
+  // Extract headers: -H "..." or -H '...' or --header "..."
+  const headers=[];
+  const hRegex=/(?:-H|--header)\s+("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
+  let m;
+  while((m=hRegex.exec(text))!==null){
+    let h=m[1];
+    // Remove outer quotes
+    h=h.replace(/^["']|["']$/g,'');
+    // Unescape
+    h=h.replace(/\\"/g,'"').replace(/\\'/g,"'").replace(/\\\\/g,'\\');
+    headers.push(h);
+  }
+
+  // Extract body: -d '...' or -d "..." or --data/--data-raw
+  let body='';
+  // Try single-quoted first (bash style: -d '{...}')
+  const dSingle=text.match(/(?:-d|--data(?:-raw)?)\s+'((?:[^'\\]|\\.)*)'/);
+  if(dSingle){body=dSingle[1]}
+  else{
+    const dDouble=text.match(/(?:-d|--data(?:-raw)?)\s+"((?:[^"\\]|\\.)*)"/);
+    if(dDouble){
+      body=dDouble[1];
+      // Unescape double-quoted content
+      body=body.replace(/\\"/g,'"').replace(/\\\\/g,'\\');
+    } else {
+      // Unquoted body (rare)
+      const dRaw=text.match(/(?:-d|--data(?:-raw)?)\s+(\S+)/);
+      if(dRaw)body=dRaw[1];
+    }
+  }
+
+  // Extract method: -X GET or --request GET
+  let method='POST';
+  const xMatch=text.match(/(?:-X|--request)\s+(\S+)/);
+  if(xMatch)method=xMatch[1].toUpperCase();
+
+  // Replace $API_KEY, $KEY, ${API_KEY} in headers and body
+  const apiKey=document.getElementById('customApiKey').value.trim();
+  if(apiKey&&apiKey!=='$API_KEY'){
+    headers.forEach((h,i)=>{
+      headers[i]=h.replace(/\$API_KEY/g,apiKey).replace(/\$\{API_KEY\}/g,apiKey).replace(/\$KEY/g,apiKey);
+    });
+    body=body.replace(/\$API_KEY/g,apiKey).replace(/\$\{API_KEY\}/g,apiKey).replace(/\$KEY/g,apiKey);
+  }
+
+  // Domain replacement
+  const domainReplace=document.getElementById('customDomainReplace').value.trim();
+  if(domainReplace&&url){
+    try{
+      const u=new URL(url);
+      url=url.replace(u.hostname,domainReplace);
+    }catch(e){}
+  }
+
+  return{url,headers,body,method};
 }
 
-function getFinalUrl(){
-  const t=TEMPLATES[currentType];
-  const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  let url=t.refUrl;
-  // Replace model placeholder if needed
-  if(url.includes('{model}')){url=url.replace('{model}',selectedModel[currentType]||t.models[0].code)}
-  return url.replace(/www\.sophnet\.com/g,newDomain);
+function generateCustomCode(){
+  const input=document.getElementById('customCurlInput').value;
+  customParsed=parseCurlExample(input);
+  const resultDiv=document.getElementById('parseResult');
+
+  if(!input.trim()){
+    resultDiv.innerHTML='';
+    document.getElementById('codeOutput').textContent='';
+    document.getElementById('codeSection').style.display='none';
+    return;
+  }
+
+  if(!customParsed||!customParsed.url){
+    resultDiv.innerHTML='<div class="parsed-info parse-error"><div class="p-row"><b>⚠️ 解析失败</b></div><div class="p-row">未检测到 URL。请确认粘贴的是完整的 curl 命令（包含 http:// 或 https:// 开头的网址）。</div></div>';
+    document.getElementById('codeOutput').textContent='';
+    document.getElementById('codeSection').style.display='none';
+    return;
+  }
+
+  // Show parsed info
+  const p=customParsed;
+  let html='<div class="parsed-info">';
+  html+='<div class="p-row"><b>解析结果</b> ✅</div>';
+  html+='<div class="p-row"><b>Method</b><code>'+p.method+'</code></div>';
+  html+='<div class="p-row"><b>URL</b><code>'+p.url+'</code></div>';
+  html+='<div class="p-row"><b>Headers</b></div>';
+  p.headers.forEach(h=>{html+='<div class="p-row" style="margin-left:16px"><code>'+h+'</code></div>'});
+  if(p.body){
+    // Try to pretty-print JSON
+    let bodyDisplay=p.body;
+    try{bodyDisplay=JSON.stringify(JSON.parse(p.body),null,2)}catch(e){}
+    html+='<div class="p-row"><b>Body</b></div>';
+    html+='<div class="p-row" style="margin-left:16px"><pre style="font-size:12px;background:#f0fdf4;border:none;padding:4px 0;margin:0;white-space:pre-wrap;word-break:break-all">'+bodyDisplay.replace(/</g,'&lt;')+'</pre></div>';
+  }
+  html+='</div>';
+  resultDiv.innerHTML=html;
+
+  // Generate code
+  document.getElementById('codeSection').style.display='';
+  const apiKey=document.getElementById('customApiKey').value.trim()||'$API_KEY';
+
+  if(currentMode==='curl'){
+    // CMD single-line curl
+    let cmd='curl.exe "'+p.url+'"';
+    p.headers.forEach(h=>{
+      cmd+=' -H "'+h.replace(/"/g,'\\"')+'"';
+    });
+    if(p.body){
+      cmd+=' -d "'+p.body.replace(/"/g,'\\"')+'"';
+    }
+    if(p.method&&p.method!=='POST'){
+      cmd+=' -X '+p.method;
+    }
+    document.getElementById('codeOutput').textContent=cmd;
+  } else {
+    // Python with urllib
+    var pyLines=[
+      'import urllib.request, urllib.error, json','',
+      'API_KEY = "'+apiKey+'"',
+      'URL = "'+p.url+'"','',
+    ];
+
+    // Build headers dict
+    var hdrLines=[];
+    p.headers.forEach(h=>{
+      var idx=h.indexOf(':');
+      if(idx>0){
+        var key=h.slice(0,idx).trim();
+        var val=h.slice(idx+1).trim();
+        // Replace $API_KEY in header value
+        if(val.includes('$API_KEY'))val=val.replace(/\$API_KEY/g,'" + API_KEY + "');
+        hdrLines.push('    "'+key+'": "'+val+'",');
+      }
+    });
+    pyLines.push('headers = {');
+    hdrLines.forEach(l=>pyLines.push(l));
+    pyLines.push('}');
+    pyLines.push('');
+
+    if(p.body){
+      // Try to parse as JSON and generate dict
+      var parsedBody;
+      try{
+        parsedBody=JSON.parse(p.body);
+        pyLines.push('body = '+JSON.stringify(parsedBody,null,2).replace(/^/gm,'    ').replace(/^\s*$/,'').replace(/^    \{/,'{').replace(/}$/,  '}')
+                   .replace(/\n    \}/,'\n}'));
+        // Simpler approach: just use the JSON string directly
+        pyLines.pop();
+        pyLines.push('body = '+JSON.stringify(parsedBody));
+      }catch(e){
+        pyLines.push('body = '+JSON.stringify(p.body));
+      }
+      pyLines.push('data = json.dumps(body, ensure_ascii=False).encode("utf-8")');
+      pyLines.push('');
+      pyLines.push('req = urllib.request.Request(URL, data=data, headers=headers, method="'+p.method+'")');
+    } else {
+      pyLines.push('req = urllib.request.Request(URL, headers=headers, method="'+p.method+'")');
+    }
+    pyLines.push('');
+    pyLines.push('try:');
+    pyLines.push('    with urllib.request.urlopen(req, timeout=120) as resp:');
+    pyLines.push('        status = resp.status');
+    pyLines.push('        result = json.loads(resp.read().decode("utf-8"))');
+    pyLines.push('        print(f"HTTP {status}")');
+    pyLines.push('        if status in (200, 201):');
+    pyLines.push('            print("✅ 成功")');
+    pyLines.push('        else:');
+    pyLines.push('            print("❌ 失败")');
+    pyLines.push('        print(json.dumps(result, indent=2, ensure_ascii=False))');
+    pyLines.push('except urllib.error.HTTPError as e:');
+    pyLines.push('    print(f"❌ HTTP {e.code}")');
+    pyLines.push('    print(e.read().decode("utf-8"))');
+    pyLines.push('except Exception as e:');
+    pyLines.push('    print(f"❌ 异常: {e}")');
+
+    document.getElementById('codeOutput').textContent=pyLines.join('\n');
+  }
 }
 
-function getPollUrl(){
-  const t=TEMPLATES[currentType];
-  const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  let url=t.pollUrl||t.refUrl;
-  return url.replace(/www\.sophnet\.com/g,newDomain);
-}
-
+// ====== Standard code generation ======
 function generateCode(){
+  if(currentType==='custom'){generateCustomCode();return}
   const t=TEMPLATES[currentType];
   const url=getFinalUrl();
   const apiKey=document.getElementById('apiKey').value.trim();
   const webSearch=document.getElementById('webSearch').value==='true';
   let body=t.body;
-
-  // Replace model in body
   try{
     var parsed=JSON.parse(body);
     if(parsed.model) parsed.model=selectedModel[currentType]||t.models[0].code;
-    // Video params
     if(t.showDuration&&t.isAsync){
       const duration=document.getElementById('duration').value.trim()||'5';
       const resolution=document.getElementById('resolution').value;
@@ -395,12 +633,10 @@ function generateCode(){
         parsed.duration=parseInt(duration);if(genAudio) parsed.audio=genAudio;
       }
     }
-    // Watermark for non-video types
     if(!t.isAsync){
       var wmType2=document.getElementById('watermarkType')?document.getElementById('watermarkType').value:'none';
       if(wmType2==='custom'&&'watermark'in parsed) parsed.watermark=true;
     }
-    // Web search
     if(webSearch) parsed.web_search=true;
     body=JSON.stringify(parsed);
   }catch(e){}
@@ -414,7 +650,6 @@ function generateCode(){
       document.getElementById('pollCode').textContent='curl.exe "'+pollUrl+'/替换为实际task_id'+pollSuffix+'" -H "Authorization: Bearer '+apiKey+'"';
     }
   } else {
-    // Python: dict + json.dumps
     var p2;try{p2=JSON.parse(body)}catch(e){p2={}}
     var dl=[];
     for(var k in p2){
@@ -453,7 +688,6 @@ function generateCode(){
       '    print(f"❌ 异常: {e}")',
     ];
     document.getElementById('codeOutput').textContent=py.join('\n');
-
     if(t.isAsync){
       const pollUrl=getPollUrl();
       const pollSuffix=t.pollSuffix||'';
@@ -486,8 +720,25 @@ function copyCode(btn){
   });
 }
 
-// Event listeners
+// ====== URL/domain helpers ======
+function getFinalUrl(){
+  const t=TEMPLATES[currentType];
+  const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
+  let url=t.refUrl;
+  if(url.includes('{model}')){url=url.replace('{model}',selectedModel[currentType]||t.models[0].code)}
+  return url.replace(/www\.sophnet\.com/g,newDomain);
+}
+
+function getPollUrl(){
+  const t=TEMPLATES[currentType];
+  const newDomain=document.getElementById('newDomain').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
+  let url=t.pollUrl||t.refUrl;
+  return url.replace(/www\.sophnet\.com/g,newDomain);
+}
+
+// ====== Event listeners ======
 document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>switchType(a.dataset.type)));
+
 function autoExtractDomain(){
   const url=document.getElementById('baseUrl').value.trim();
   if(!url)return;
@@ -500,6 +751,16 @@ function autoExtractDomain(){
 });
 document.getElementById('baseUrl').addEventListener('input',autoExtractDomain);
 document.getElementById('baseUrl').addEventListener('paste',function(){setTimeout(autoExtractDomain,0)});
+
+// Custom model events
+['customCurlInput','customApiKey','customDomainReplace','customModelName'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){
+    el.addEventListener('input',generateCustomCode);
+    el.addEventListener('paste',function(){setTimeout(generateCustomCode,0)});
+    el.addEventListener('change',generateCustomCode);
+  }
+});
 
 switchType('s1');
 </script>

@@ -301,6 +301,37 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif
 .config-restored-tip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:9px 13px;background:var(--success-bg);border:1px solid #a7f3d0;border-radius:var(--radius-sm);font-size:12.5px;color:#065f46;font-weight:500}
 .config-restored-tip .link-btn{background:none;border:none;padding:0;font-size:12px;color:var(--text-secondary);text-decoration:underline;cursor:pointer;font-family:inherit}
 .config-restored-tip .link-btn:hover{color:var(--danger)}
+/* 历史记录：输入框的历史候选下拉（不改动原输入框，只在外面套一层定位容器） */
+.hist-wrap{position:relative}
+.hist-list{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);max-height:224px;overflow-y:auto;padding:4px}
+.hist-list[hidden]{display:none}
+.hist-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text)}
+.hist-item:hover,.hist-item.active{background:var(--primary-light)}
+.hist-item-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-item-del{flex:none;border:none;background:none;color:var(--text-tertiary);cursor:pointer;font-size:15px;line-height:1;padding:1px 5px;border-radius:4px;font-family:inherit}
+.hist-item-del:hover{color:var(--danger);background:var(--danger-bg)}
+/* 历史记录：测试记录面板 */
+.hist-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hist-run-list{display:flex;flex-direction:column;gap:10px}
+.hist-run{border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;background:var(--surface-muted)}
+.hist-run-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hist-run-time{font-size:12.5px;font-weight:600;color:var(--text)}
+.hist-run-meta{font-size:12px;color:var(--text-secondary);margin-top:6px;line-height:1.7;word-break:break-all}
+.hist-run-counts{display:flex;align-items:center;gap:6px;font-size:12px;flex-wrap:wrap}
+.hist-chip{padding:1px 8px;border-radius:999px;font-weight:600}
+.hist-chip.pass{background:var(--success-bg);color:#065f46}
+.hist-chip.fail{background:var(--danger-bg);color:#991b1b}
+.hist-chip.skip{background:var(--warning-bg);color:#92400e}
+.hist-run-detail{display:none;margin-top:10px;border-top:1px dashed var(--border-strong);padding-top:9px}
+.hist-run-detail.show{display:block}
+.hist-detail-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;color:var(--text-secondary)}
+.hist-detail-row .dot{width:7px;height:7px;border-radius:50%;flex:none}
+.hist-detail-row .dot.pass{background:var(--success)}
+.hist-detail-row .dot.fail{background:var(--danger)}
+.hist-detail-row .dot.skip{background:var(--warning)}
+.hist-detail-row .hist-detail-state{margin-left:auto;font-weight:600}
+.hist-link-btn{background:none;border:none;padding:0;font-size:12px;color:var(--text-secondary);text-decoration:underline;cursor:pointer;font-family:inherit}
+.hist-link-btn:hover{color:var(--primary)}
 .qg-gate-hint{text-align:left;color:var(--text-secondary);font-size:13.5px;margin-bottom:18px;padding:0}
 .qg-items{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
 .qg-item{min-height:74px;padding:16px 18px;border-radius:var(--radius-sm)}
@@ -351,8 +382,11 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif
     <div class="form-row" data-page-node-id="DmZii8o71A1lbG6nIutiHk">
       <div class="form-group" data-page-node-id="LnwJ5itFGKtWDi5hZhwXQ8">
         <label data-page-node-id="qt4csoluhN5kI4H29O5ueX">接口地址</label>
-        <input type="text" id="cfg-url" placeholder="https://api.example.com/v1" data-page-node-id="qLibsIrODMc1DgazHpNweQ">
-        <div class="hint" data-page-node-id="WAeD290arSwApsvg7nPpJx">填平台提供的接口地址（带不带 /v1 都可以，会自动识别）；下面这些配置会保存在本机浏览器，下次打开自动填好</div>
+        <div class="hist-wrap" data-page-node-id="urlHistWrap">
+          <input type="text" id="cfg-url" placeholder="https://api.example.com/v1" autocomplete="off" data-page-node-id="qLibsIrODMc1DgazHpNweQ">
+          <div class="hist-list" id="cfg-url-hist" hidden data-page-node-id="cfgUrlHist"></div>
+        </div>
+        <div class="hint" data-page-node-id="WAeD290arSwApsvg7nPpJx">填平台提供的接口地址（带不带 /v1 都可以，会自动识别）；下面这些配置会保存在本机浏览器，下次打开自动填好。<b>点一下输入框，能看到你以前填过的地址</b></div>
       </div>
       <div class="form-group" data-page-node-id="iCdDdS44cxxf3ZwEdivUcc">
         <label data-page-node-id="gZeYUb1xu6wzVDuyi3Sihs">密钥</label>
@@ -367,7 +401,10 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif
     <div class="form-row" data-page-node-id="WY4Nq9cahvOpaIBDojw2LE">
       <div class="form-group" data-page-node-id="FIGfa4VhoV7DyjaKHZ6YzN">
         <label data-page-node-id="A6DCX6YNryCerYmOkZQzmP">模型名称</label>
-        <input type="text" id="cfg-model" placeholder="如 gpt-4o / dall-e-3 / cogvideox" oninput="onConfigChange()" data-page-node-id="V7NgbKmotWFWe7rEc0WEIH">
+        <div class="hist-wrap" data-page-node-id="modelHistWrap">
+          <input type="text" id="cfg-model" placeholder="如 gpt-4o / dall-e-3 / cogvideox" autocomplete="off" oninput="onConfigChange()" data-page-node-id="V7NgbKmotWFWe7rEc0WEIH">
+          <div class="hist-list" id="cfg-model-hist" hidden data-page-node-id="cfgModelHist"></div>
+        </div>
       </div>
       <div class="form-group" data-page-node-id="EFxPJGFinNX4hlFi7hJhlT">
         <label data-page-node-id="LnYH16H8dvzn8rjzdt6zlA">接口协议</label>
@@ -555,6 +592,20 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif
       <div class="card-title" style="font-size:14.5px;font-weight:700;color:var(--primary-dark);margin-bottom:8px" data-page-node-id="UG73YlGhhH2tVJVo1B848R">📦 调用代码参考文档</div>
       <p style="color:var(--text-secondary);font-size:12.5px;margin-bottom:12px" data-page-node-id="vQA4ycmUFobuzLfD88Wabf">包含所有展示过的调用示例（curl / Python / JavaScript），可直接复制使用。</p>
       <button class="btn btn-outline" id="code-ref-btn" onclick="downloadCodeReference()" data-page-node-id="v0dkuRkYn00JCvI0tdXghu">下载调用代码参考</button>
+    </div>
+  </div>
+
+  <div class="card" id="history-card" data-page-node-id="historyCard">
+    <div class="hist-panel-head">
+      <div class="card-title" style="margin-bottom:0" data-page-node-id="histCardTitle">🕘 历史记录</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button type="button" class="hist-link-btn" id="hist-toggle-btn" onclick="toggleHistoryPanel()" data-page-node-id="histToggleBtn">展开</button>
+        <button type="button" class="hist-link-btn" id="hist-clear-btn" onclick="clearHistoryRuns()" data-page-node-id="histClearBtn">清空历史记录</button>
+      </div>
+    </div>
+    <p style="margin:10px 0 0;color:var(--text-secondary);font-size:12.5px;line-height:1.7" data-page-node-id="histCardDesc">这里只记录你在这台电脑上跑过的测试（时间、地址、模型、通过情况），<b>不包含密钥</b>；点某一条可以看它当时每一项的结果。</p>
+    <div id="history-body" style="display:none;margin-top:14px" data-page-node-id="historyBody">
+      <div class="hist-run-list" id="hist-run-list" data-page-node-id="histRunList"></div>
     </div>
   </div>
 
@@ -3155,6 +3206,16 @@ function saveConfigToStorage(){
   try{store.setItem(CFG_STORE_KEY,JSON.stringify(data));}catch(e){}
 }
 
+// 把「用户真正确认使用」的地址/模型名记入历史。
+// 只在提交时机调用（输入框失焦、回车确认、开始跑测试），避免把 h / ht / htt 这类半截输入也存进去。
+function commitConfigToHistory(){
+  try{
+    var url=document.getElementById('cfg-url'),model=document.getElementById('cfg-model');
+    if(url&&url.value.trim())pushHistory(HIST_URL_KEY,url.value,HIST_LIMIT);
+    if(model&&model.value.trim())pushHistory(HIST_MODEL_KEY,model.value,HIST_LIMIT);
+  }catch(e){}
+}
+
 function loadConfigFromStorage(){
   var store=safeStorage();if(!store)return false;
   var raw=null;
@@ -3182,6 +3243,194 @@ function clearStoredConfig(){
   try{store.removeItem(CFG_STORE_KEY);}catch(e){}
 }
 
+// ============================ 历史记录（终端用户可见） ============================
+// 目的：让使用者能回看「我以前填过哪些接口地址 / 模型名」以及「我以前测过几次、结果如何」。
+// 安全边界：
+//   1) 密钥永远不会进入任何历史数据（下面的写入函数只接收地址/模型等非敏感文本）。
+//   2) 隐私模式 / localStorage 不可用时静默降级为「不记忆」，不影响测试主流程。
+var HIST_URL_KEY='llm-api-tester:hist:urls:v1';
+var HIST_MODEL_KEY='llm-api-tester:hist:models:v1';
+var HIST_RUN_KEY='llm-api-tester:hist:runs:v1';
+var HIST_LIMIT=10;      // 接口地址 / 模型名各保留最近 10 条
+var HIST_RUN_LIMIT=20;  // 历史测试记录保留最近 20 次
+
+function histRead(key){
+  var store=safeStorage();if(!store)return [];
+  var raw=null;
+  try{raw=store.getItem(key);}catch(e){return [];}
+  if(!raw)return [];
+  var arr=null;
+  try{arr=JSON.parse(raw);}catch(e){return [];}
+  return Array.isArray(arr)?arr:[];
+}
+function histWrite(key,arr){
+  var store=safeStorage();if(!store)return;
+  try{store.setItem(key,JSON.stringify(arr));}catch(e){}
+}
+// 追加一条历史值：去重（新值移到最前）、忽略空值、超出上限丢最旧
+function pushHistory(key,value,limit){
+  var v=(value===undefined||value===null)?'':String(value).trim();
+  if(!v)return;
+  var arr=histRead(key).filter(function(x){return x!==v;});
+  arr.unshift(v);
+  if(arr.length>limit)arr=arr.slice(0,limit);
+  histWrite(key,arr);
+}
+// 从历史中移除某个值
+function removeHistoryValue(key,value){
+  var arr=histRead(key).filter(function(x){return x!==String(value);});
+  histWrite(key,arr);
+}
+function clearAllHistory(){
+  histWrite(HIST_URL_KEY,[]);histWrite(HIST_MODEL_KEY,[]);histWrite(HIST_RUN_KEY,[]);
+}
+// 历史测试记录：每次跑完一轮测试写一条摘要（绝不含密钥）
+function saveRunRecord(record){
+  if(!record)return;
+  var arr=histRead(HIST_RUN_KEY);
+  arr.unshift(record);
+  if(arr.length>HIST_RUN_LIMIT)arr=arr.slice(0,HIST_RUN_LIMIT);
+  histWrite(HIST_RUN_KEY,arr);
+}
+
+// ---- 输入框历史下拉 ----
+// 在输入框下方渲染「以前填过的地址 / 模型名」，点一下就回填。
+var histDropdownState={inputId:null,activeIndex:-1,items:[]};
+
+function showHistoryDropdown(inputId,storeKey){
+  var input=document.getElementById(inputId);
+  var list=document.getElementById(inputId+'-hist');
+  if(!input||!list)return;
+  var items=histRead(storeKey);
+  histDropdownState.inputId=inputId;
+  histDropdownState.activeIndex=-1;
+  histDropdownState.items=items;
+  if(!items.length){list.hidden=true;list.innerHTML='';return;}
+  var h='';
+  items.forEach(function(v,i){
+    h+='<div class="hist-item" role="option" data-index="'+i+'" onmousedown="pickHistoryValue(event,\''+inputId+'\',\''+storeKey+'\','+i+')">'
+      +'<span class="hist-item-text">'+escapeHtml(v)+'</span>'
+      +'<button type="button" class="hist-item-del" title="从历史中移除" onmousedown="event.preventDefault();event.stopPropagation();deleteHistoryValue(\''+inputId+'\',\''+storeKey+'\','+i+')">&times;</button>'
+      +'</div>';
+  });
+  list.innerHTML=h;
+  list.hidden=false;
+}
+function hideHistoryDropdown(inputId){
+  var id=inputId||histDropdownState.inputId;
+  if(!id)return;
+  var list=document.getElementById(id+'-hist');
+  if(list){list.hidden=true;list.innerHTML='';}
+  histDropdownState.inputId=null;histDropdownState.activeIndex=-1;histDropdownState.items=[];
+}
+function pickHistoryValue(ev,inputId,storeKey,index){
+  if(ev){ev.preventDefault();ev.stopPropagation();}
+  var input=document.getElementById(inputId);
+  var value=(histDropdownState.items||[])[index];
+  if(input&&value!==undefined){
+    input.value=value;
+    try{input.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}
+    try{input.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
+  }
+  hideHistoryDropdown(inputId);
+}
+function deleteHistoryValue(inputId,storeKey,index){
+  var value=(histDropdownState.items||[])[index];
+  if(value===undefined)return;
+  removeHistoryValue(storeKey,value);
+  showHistoryDropdown(inputId,storeKey);
+}
+function moveHistoryActive(delta){
+  var id=histDropdownState.inputId;if(!id)return false;
+  var list=document.getElementById(id+'-hist');
+  if(!list||list.hidden)return false;
+  var n=histDropdownState.items.length;if(!n)return false;
+  var next=histDropdownState.activeIndex+delta;
+  if(next<0)next=n-1;
+  if(next>=n)next=0;
+  histDropdownState.activeIndex=next;
+  var nodes=list.querySelectorAll('.hist-item');
+  for(var i=0;i<nodes.length;i++)nodes[i].classList.toggle('active',i===next);
+  return true;
+}
+
+// ---- 历史测试记录面板 ----
+function fmtHistTime(ts){
+  var d=new Date(ts);
+  function p(x){return (x<10?'0':'')+x;}
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function toggleHistoryPanel(force){
+  var body=document.getElementById('history-body');
+  var btn=document.getElementById('hist-toggle-btn');
+  if(!body)return;
+  var show=(force===undefined)?(body.style.display==='none'):!!force;
+  body.style.display=show?'block':'none';
+  if(btn)btn.textContent=show?'收起':'展开';
+  if(show)renderHistoryRuns();
+}
+function toggleHistRunDetail(runId){
+  var el=document.getElementById('hist-run-detail-'+runId);
+  if(el)el.classList.toggle('show');
+}
+function renderHistoryRuns(){
+  var box=document.getElementById('hist-run-list');
+  if(!box)return;
+  var runs=histRead(HIST_RUN_KEY);
+  if(!runs.length){
+    box.innerHTML='<div style="font-size:12.5px;color:var(--text-tertiary);padding:6px 0">还没有测试记录。跑一次测试后，这里会自动记下来。</div>';
+    return;
+  }
+  var h='';
+  runs.forEach(function(r,idx){
+    var rid='r'+idx+'_'+(r.time||0);
+    h+='<div class="hist-run" data-page-node-id="histRun'+idx+'">';
+    h+='<div class="hist-run-top"><span class="hist-run-time">'+escapeHtml(fmtHistTime(r.time||Date.now()))+'</span>';
+    h+='<span class="hist-run-counts">'
+      +'<span class="hist-chip pass">通过 '+(r.pass||0)+'</span>'
+      +'<span class="hist-chip fail">失败 '+(r.fail||0)+'</span>'
+      +'<span class="hist-chip skip">跳过 '+(r.skip||0)+'</span>'
+      +'</span></div>';
+    h+='<div class="hist-run-meta">接口地址：'+escapeHtml(r.url||'-')+'<br>模型：'+escapeHtml(r.model||'-')+'　协议：'+escapeHtml(r.protocol||'-')+'</div>';
+    if(r.items&&r.items.length){
+      h+='<button type="button" class="hist-link-btn" style="margin-top:8px" onclick="toggleHistRunDetail(\''+rid+'\')">查看每一项结果</button>';
+      h+='<div class="hist-run-detail" id="hist-run-detail-'+rid+'">';
+      r.items.forEach(function(it){
+        var st=(it.status==='pass')?'pass':(it.status==='fail'?'fail':'skip');
+        var label=(st==='pass')?'通过':(st==='fail'?'失败':'跳过');
+        h+='<div class="hist-detail-row"><span class="dot '+st+'"></span><span>'+escapeHtml(it.name||it.id||'-')+'</span><span class="hist-detail-state">'+label+'</span></div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  box.innerHTML=h;
+}
+function clearHistoryRuns(){
+  if(!window.confirm('确定清空历史测试记录？只清除历次测试记录，不会动你的配置。'))return;
+  histWrite(HIST_RUN_KEY,[]);
+  renderHistoryRuns();
+}
+// 把当前这一轮的结果整理成一条历史记录（只取状态与名称，不含任何请求内容与密钥）
+function buildRunRecord(){
+  var url='',model='',protocol='';
+  try{url=state.cfg.url||'';model=state.cfg.model||'';protocol=state.cfg.protocol||'';}catch(e){}
+  var items=[];
+  var pass=0,fail=0,skip=0;
+  // 遍历本轮实际产出结果的所有测试项（快速检查与普通测试项都包含），按完成先后顺序
+  Object.keys(state.results||{}).forEach(function(tid){
+    var test=TESTS.find(function(t){return t.id===tid;});
+    var res=state.results[tid];
+    if(!test||!res)return;
+    var st=res.status;
+    if(st!=='pass'&&st!=='fail'&&st!=='skip')return;
+    if(st==='pass')pass++;else if(st==='fail')fail++;else skip++;
+    items.push({id:tid,name:test.name,status:st});
+  });
+  if(!items.length)return;
+  return {time:Date.now(),url:url,model:model,protocol:protocol,pass:pass,fail:fail,skip:skip,items:items};
+}
+
 // ============================ 执行引擎 ============================
 function readConfig(){
   state.cfg.url=document.getElementById('cfg-url').value.trim();
@@ -3206,6 +3455,8 @@ async function runTests(testIds){
   if(!confirmCostlyTests(testIds))return;
   readConfig();
   if(!validateConfig())return;
+  // 用户按下运行时，说明这份地址/模型是认真填的，此时才记入历史
+  commitConfigToHistory();
   state.running=true;state.stopFlag=false;state.currentRunId++;var runId=state.currentRunId;state.runController=new AbortController();state.testStartTime=Date.now();state.completedCount=0;
   // 清掉上一次的连通性探测缓存，确保本次运行按最新配置重新探测
   state.modelsProbePromise=null;
@@ -3242,6 +3493,14 @@ async function runTests(testIds){
     renderSummary();
     updateQuickCheckStatus();
     if(state.resultOrder.length>0)document.getElementById('report-section').style.display='block';
+    // 本轮结束：写入一条历史测试记录（只含状态摘要，不含密钥与请求内容）
+    try{
+      var rec=buildRunRecord();
+      if(rec){
+        saveRunRecord(rec);
+        if(document.getElementById('history-body')&&document.getElementById('history-body').style.display!=='none')renderHistoryRuns();
+      }
+    }catch(e){}
   }
 }
 // ============================ 复制代码视图：仅显示代码 ============================
@@ -3713,6 +3972,47 @@ for(var j=0;j<cfgTextInputs.length;j++){var el2=document.getElementById(cfgTextI
 })();
 
 // 页面启动：先回填已保存的配置，再渲染界面，避免出现「填了又空」的观感
+(function bindHistoryUI(){
+  // 接口地址 / 模型名：聚焦时弹出历史候选，可键盘上下选择、回车确认、Esc 关闭
+  var pairs=[['cfg-url',HIST_URL_KEY],['cfg-model',HIST_MODEL_KEY]];
+  pairs.forEach(function(pair){
+    var inputId=pair[0],storeKey=pair[1];
+    var input=document.getElementById(inputId);
+    if(!input)return;
+    input.addEventListener('focus',function(){showHistoryDropdown(inputId,storeKey);});
+    input.addEventListener('click',function(){showHistoryDropdown(inputId,storeKey);});
+    input.addEventListener('input',function(){
+      // 已经手动输入时不再遮挡，收起候选避免误点
+      var list=document.getElementById(inputId+'-hist');
+      if(list&&!list.hidden)hideHistoryDropdown(inputId);
+    });
+    input.addEventListener('keydown',function(ev){
+      var list=document.getElementById(inputId+'-hist');
+      var open=list&&!list.hidden;
+      if(ev.key==='ArrowDown'){if(!open){showHistoryDropdown(inputId,storeKey);}if(moveHistoryActive(1))ev.preventDefault();}
+      else if(ev.key==='ArrowUp'){if(open&&moveHistoryActive(-1))ev.preventDefault();}
+      else if(ev.key==='Enter'){
+        if(open&&histDropdownState.activeIndex>=0){pickHistoryValue(null,inputId,storeKey,histDropdownState.activeIndex);ev.preventDefault();}
+        else{hideHistoryDropdown(inputId);}
+        commitConfigToHistory();
+      }
+      else if(ev.key==='Escape'){if(open){hideHistoryDropdown(inputId);ev.preventDefault();}}
+    });
+    input.addEventListener('blur',function(){
+      setTimeout(function(){hideHistoryDropdown(inputId);},140);
+      commitConfigToHistory();
+    });
+  });
+  // 点页面其它地方也收起
+  document.addEventListener('mousedown',function(ev){
+    var id=histDropdownState.inputId;if(!id)return;
+    var wrap=document.getElementById(id+'-hist');
+    if(wrap&&(wrap.contains(ev.target)||ev.target===document.getElementById(id)))return;
+    hideHistoryDropdown(id);
+  });
+})();
+
+// 页面启动：先回填已保存的配置，再渲染界面，避免出现「填了又空」的观感
 (function initConfig(){
   var restored=false;
   try{restored=loadConfigFromStorage();}catch(e){}
@@ -3722,12 +4022,26 @@ for(var j=0;j<cfgTextInputs.length;j++){var el2=document.getElementById(cfgTextI
     // 回填后给出可见反馈，让用户知道配置已被记住
     var tip=document.getElementById('config-restored-tip');
     if(tip)tip.style.display='flex';
+    // 兼容升级前的老用户：把当前已保存的地址/模型补进历史列表，否则下拉一开始是空的
+    try{
+      if(state.cfg.url)pushHistory(HIST_URL_KEY,state.cfg.url,HIST_LIMIT);
+      if(state.cfg.model)pushHistory(HIST_MODEL_KEY,state.cfg.model,HIST_LIMIT);
+    }catch(e){}
   }
-  // 「忘记这些配置」：清空本地存储并重置表单，密钥一并清除
+  // 历史记录面板：有记录时给出可见提示
+  try{
+    if(histRead(HIST_RUN_KEY).length){
+      var hc=document.getElementById('hist-toggle-btn');
+      if(hc)hc.textContent='展开（'+histRead(HIST_RUN_KEY).length+' 条）';
+    }
+    renderHistoryRuns();
+  }catch(e){}
+  // 「忘记这些配置」：清空本地存储并重置表单，密钥一并清除；同时清掉地址/模型历史
   var forget=document.getElementById('cfg-forget-btn');
   if(forget)forget.addEventListener('click',function(){
-    if(!window.confirm('确定忘记已保存的配置？地址、模型名等会被清空（密钥也会一并清除）。'))return;
+    if(!window.confirm('确定忘记已保存的配置？地址、模型名等会被清空（密钥也会一并清除），同时清空地址与模型名的历史下拉。'))return;
     clearStoredConfig();
+    try{histWrite(HIST_URL_KEY,[]);histWrite(HIST_MODEL_KEY,[]);}catch(e){}
     PERSIST_FIELDS.forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
     var k=document.getElementById('cfg-key');if(k)k.value='';
     var rk=document.getElementById('cfg-remember-key');if(rk)rk.checked=false;
